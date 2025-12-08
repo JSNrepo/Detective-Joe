@@ -87,6 +87,8 @@ state/
 reports/*.txt
 reports/*.html
 reports/*.json
+reports/*.csv
+reports/*.xml
 
 # Backup files
 *.bak

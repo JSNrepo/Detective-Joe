@@ -1,0 +1,72 @@
+# Detective Joe AI Configuration
+# Configuration file for AI-powered reconnaissance features
+
+# Google Gemini API Configuration
+# Get your free API key from: https://makersuite.google.com/app/apikey
+# Set your API key here or as an environment variable GEMINI_API_KEY
+gemini:
+  api_key: ""  # Leave empty to use GEMINI_API_KEY environment variable
+  model: "gemini-2.5-flash"  # Latest model with high-throughput, low-latency
+  enabled: true
+  
+  # Generation settings
+  generation_config:
+    temperature: 0.7
+    top_p: 0.95
+    top_k: 40
+    max_output_tokens: 8192
+
+# AI Analysis Settings
+ai_analysis:
+  # Enable AI-powered analysis
+  enabled: true
+  
+  # Fallback to rule-based analysis if AI fails
+  fallback_enabled: true
+  
+  # Include AI analysis in reports
+  include_in_reports: true
+  
+  # Generate executive summaries
+  generate_summaries: true
+  
+  # Detailed analysis options
+  detailed_vulnerability_analysis: true
+  attack_vector_identification: true
+  mitre_attack_mapping: true
+
+# Report Generation
+reports:
+  # Include AI insights in reports
+  ai_insights: true
+  
+  # Format options
+  formats:
+    - txt
+    - html
+    - json
+    - csv
+    - xml
+  
+  # Include sections
+  include_executive_summary: true
+  include_risk_assessment: true
+  include_recommendations: true
+  include_attack_surface: true
+
+# Privacy and Security
+privacy:
+  # Sanitize sensitive data before sending to AI
+  sanitize_data: true
+  
+  # Data retention (AI service may cache data)
+  # Note: Google Gemini has its own data retention policies
+  acknowledge_data_sharing: false
+
+# Cost Management (for paid tiers)
+cost_management:
+  # Maximum tokens per analysis (to control costs)
+  max_tokens_per_request: 8192
+  
+  # Rate limiting
+  max_requests_per_minute: 10
