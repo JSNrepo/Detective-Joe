@@ -1,9 +1,32 @@
 # Detective Joe v1.5 — Next-Gen Recon Framework
 
+[![Kali Linux Compatible](https://img.shields.io/badge/Kali%20Linux-Compatible-blue.svg)](https://www.kali.org/)
+[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 ## 📌 Overview
 Detective Joe (**DJ**) v1.5 is a **next-generation automated reconnaissance framework** built for security professionals and researchers. Instead of running individual tools one by one, DJ chains reconnaissance tools through an async plugin architecture, executes them efficiently in parallel, and merges results into comprehensive, structured reports.
 
 **Think of DJ as your intelligent recon operator** — you define the target and profile once, it handles the orchestration, execution, and analysis.
+
+### 🎯 Why Detective Joe for Kali Linux?
+
+**Problem**: Running multiple reconnaissance tools manually is time-consuming, error-prone, and makes correlation difficult.
+
+**Solution**: Detective Joe automates and orchestrates your reconnaissance workflow:
+- ✅ **One Command, Multiple Tools**: Run 8+ reconnaissance tools with a single command
+- ✅ **AI-Powered Analysis**: Automated vulnerability correlation and risk assessment
+- ✅ **MITRE ATT&CK Mapping**: Understand your reconnaissance activities in the ATT&CK framework
+- ✅ **Kali-Optimized**: Designed for Kali Linux with all common tools pre-configured
+- ✅ **Export Anywhere**: 5 output formats (TXT, HTML, JSON, CSV, XML) for any workflow
+- ✅ **Zero Noise**: Intelligent parsing eliminates tool output noise, showing only what matters
+
+**Perfect for**:
+- 🔍 Penetration testers who need fast, comprehensive reconnaissance
+- 🛡️ Security researchers performing OSINT investigations  
+- 👨‍💻 Bug bounty hunters hunting for attack surface
+- 🏢 Red teams conducting infrastructure assessments
+- 📚 Students learning reconnaissance methodologies
 
 ---
 
@@ -189,6 +212,17 @@ sudo apt update
 sudo apt install nmap theharvester sublist3r whatweb sslscan dnsrecon whois
 ```
 
+**Or use our automated tool installer:**
+```bash
+# One-command installation of all tools
+sudo ./install_tools.sh
+
+# This script will:
+# ✓ Install all required reconnaissance tools
+# ✓ Verify installations
+# ✓ Report any missing dependencies
+```
+
 **Individual Tool Installation:**
 ```bash
 # Core scanning tools (usually pre-installed on Kali)
@@ -306,6 +340,113 @@ SUMMARY:
   Artifacts found: 15
   Chained tasks: 3
 ```
+
+---
+
+## 📖 Practical Usage Guide
+
+### Use Case 1: Basic Website Reconnaissance
+Perfect for initial assessment of a target website.
+
+```bash
+# Activate virtual environment
+source .venv/bin/activate
+
+# Run standard website investigation
+python3 detectivejoe.py -c website -t target-domain.com -p standard
+
+# This will:
+# ✓ Scan ports and identify services (nmap)
+# ✓ Harvest emails and OSINT data (theHarvester)
+# ✓ Fingerprint web technologies (whatweb)
+# ✓ Analyze DNS records (dnsrecon)
+# ✓ Check domain registration (whois)
+# ✓ Generate AI-powered risk assessment
+# ✓ Export results in TXT, HTML, JSON, CSV, XML formats
+```
+
+### Use Case 2: Deep Subdomain Enumeration
+Discover all subdomains and associated infrastructure.
+
+```bash
+# Run deep scan with subdomain enumeration
+python3 detectivejoe.py -c website -t target-domain.com -p deep
+
+# This will additionally:
+# ✓ Enumerate subdomains (sublist3r, dnsrecon)
+# ✓ Chain discovered subdomains into additional scans
+# ✓ Analyze SSL/TLS configuration (sslscan)
+# ✓ Map attack surface and identify vectors
+```
+
+### Use Case 3: Security Audit with Stealth
+Perform reconnaissance while minimizing detection.
+
+```bash
+# Use stealth profile with anonymity features
+python3 detectivejoe.py -c website -t target-domain.com -p stealth
+
+# Stealth features:
+# ✓ TOR routing (if configured)
+# ✓ Proxy rotation
+# ✓ User-agent randomization
+# ✓ Request delays and timing randomization
+# ✓ Low aggressiveness to avoid detection
+```
+
+### Use Case 4: Organization Intelligence Gathering
+Gather comprehensive information about an organization.
+
+```bash
+# Organization investigation
+python3 detectivejoe.py -c organisation -t company-domain.com -p standard
+
+# Focuses on:
+# ✓ Email harvesting for employees
+# ✓ Domain and subdomain enumeration
+# ✓ Infrastructure mapping
+# ✓ DNS records and mail servers
+# ✓ Registration details
+```
+
+### Use Case 5: Quick Server Assessment
+Fast assessment of a specific server or IP.
+
+```bash
+# IP/Server investigation
+python3 detectivejoe.py -c ip -t 192.168.1.1 -p quick
+
+# Analyzes:
+# ✓ Open ports and running services
+# ✓ SSL/TLS configuration
+# ✓ Service versions and potential vulnerabilities
+```
+
+### Understanding Output
+
+**Risk Levels:**
+- `MINIMAL` (0-9): Low exposure, basic recommendations
+- `LOW` (10-24): Minor issues, standard hardening needed
+- `MEDIUM` (25-49): Moderate concerns, security review recommended
+- `HIGH` (50-79): Significant vulnerabilities, immediate attention required
+- `CRITICAL` (80-100): Severe security issues, urgent remediation needed
+
+**Artifact Types:**
+- `emails`: Email addresses discovered
+- `subdomains`: Subdomain enumeration results
+- `domains`: Additional domains found
+- `ips`: IP addresses identified
+- `ports`: Open ports detected
+- `services`: Running services enumerated
+- `technologies`: Web technologies fingerprinted
+- `vulnerabilities`: Security issues identified
+
+**Using Reports:**
+- **TXT**: Human-readable, good for documentation
+- **HTML**: Interactive, best for presentations
+- **JSON**: Machine-readable, for automation/SIEM integration
+- **CSV**: Spreadsheet analysis, pivot tables, filtering
+- **XML**: Enterprise security tools, compliance systems
 
 ---
 
@@ -698,6 +839,125 @@ global_settings:
   cve_enrichment: true
   report_formats: ["txt", "html", "json"]
 ```
+
+---
+
+## 🔧 Troubleshooting
+
+### Virtual Environment Issues
+**Problem**: "Detective Joe must be run inside a virtual environment"
+```bash
+# Solution: Run setup script
+./setup.sh
+
+# Or manually create venv
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Missing Tools
+**Problem**: Plugins show as "unavailable" or "No available plugins"
+```bash
+# Check which tools are missing
+python3 detectivejoe.py --list-plugins
+
+# Install missing tools on Kali Linux
+sudo apt update
+sudo apt install nmap theharvester sublist3r whatweb sslscan dnsrecon whois
+
+# For Python-based tools
+pip install theHarvester sublist3r
+```
+
+### Permission Denied
+**Problem**: Cannot run nmap or other tools
+```bash
+# Some tools need elevated privileges
+# Option 1: Run with sudo (not recommended for framework)
+sudo python3 detectivejoe.py ...
+
+# Option 2: Add capabilities to tools (better approach)
+sudo setcap cap_net_raw,cap_net_admin=eip /usr/bin/nmap
+
+# Option 3: Use demo mode for testing without privileges
+python3 detectivejoe.py -c website -t example.com -p demo
+```
+
+### Import Errors
+**Problem**: "Failed to import required modules"
+```bash
+# Ensure all framework files are present
+ls -la *.py plugins/*.py
+
+# Reinstall dependencies
+pip install --force-reinstall -r requirements.txt
+
+# Check Python version (needs 3.7+)
+python3 --version
+```
+
+### Timeout Issues
+**Problem**: Tasks timing out before completion
+```bash
+# Increase timeout for slow networks
+python3 detectivejoe.py -c website -t example.com --timeout 300
+
+# Or modify profile timeout in profiles.yaml
+# timeout: 300  # 5 minutes
+```
+
+### Output Directory Permissions
+**Problem**: Cannot write reports
+```bash
+# Check/fix permissions
+chmod 755 reports/
+chmod 755 cache/
+chmod 755 state/
+
+# Or run from a directory where you have write access
+cd ~/detective-joe-scans
+python3 /path/to/detectivejoe.py ...
+```
+
+### Rate Limiting / Blocked
+**Problem**: Target is rate-limiting or blocking requests
+```bash
+# Use stealth profile with delays
+python3 detectivejoe.py -c website -t example.com -p stealth
+
+# Or adjust aggressiveness in profiles.yaml
+# aggressiveness: "low"  # Slower but more stealthy
+# request_delay: 10      # 10 second delays
+```
+
+### No Results / Empty Artifacts
+**Problem**: Investigation completes but finds nothing
+```bash
+# This can happen if:
+# 1. Target has minimal exposure (good security!)
+# 2. Tools didn't run successfully
+# 3. Parsing failed
+
+# Solutions:
+# Check logs with verbose mode
+python3 detectivejoe.py -c website -t example.com -v
+
+# Use demo mode to verify framework works
+python3 detectivejoe.py -c website -t example.com -p demo
+
+# Test individual tools manually
+nmap -sV example.com
+whois example.com
+```
+
+### Getting Help
+If you encounter issues not covered here:
+1. Check the logs in verbose mode (`-v` flag)
+2. Review generated reports for error details
+3. Test tools individually outside the framework
+4. Check GitHub issues: https://github.com/vinothvbt/Detective-Joe/issues
+5. Ensure all dependencies are up to date
 
 ---
 
