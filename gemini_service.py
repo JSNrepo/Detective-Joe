@@ -44,12 +44,12 @@ class GeminiService:
             # Configure Gemini
             genai.configure(api_key=self.api_key)
             
-            # Use Gemini 2.0 Flash Experimental model (free tier available)
-            # Note: This is currently in preview and may be updated to stable release
-            self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+            # Use Gemini 1.5 Flash model (stable, free tier available)
+            # This is the stable production-ready version of the Flash model
+            self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
             
             self.enabled = True
-            self.logger.info("Gemini 2.0 Flash AI initialized successfully")
+            self.logger.info("Gemini 1.5 Flash AI initialized successfully")
             
         except ImportError:
             self.logger.warning("google-generativeai package not installed. Run: pip install google-generativeai")

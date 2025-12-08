@@ -499,7 +499,7 @@ class AIIntelligenceAnalyzer:
                     summary_lines = []
                     summary_lines.append("=" * 70)
                     summary_lines.append("AI-POWERED INTELLIGENCE ANALYSIS")
-                    summary_lines.append("Powered by Google Gemini 2.0 Flash")
+                    summary_lines.append("Powered by Google Gemini 1.5 Flash")
                     summary_lines.append("=" * 70)
                     summary_lines.append("")
                     summary_lines.append(gemini_summary)

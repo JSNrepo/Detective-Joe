@@ -4,7 +4,7 @@
 
 ### What Was Built
 
-The Detective Joe reconnaissance framework has been successfully enhanced with **Google Gemini 2.0 Flash AI** integration, providing intelligent analysis of reconnaissance data with human-readable insights.
+The Detective Joe reconnaissance framework has been successfully enhanced with **Google Gemini 1.5 Flash AI** integration, providing intelligent analysis of reconnaissance data with human-readable insights.
 
 ---
 
@@ -115,11 +115,11 @@ The Detective Joe reconnaissance framework has been successfully enhanced with *
 
 ## 💰 Cost Analysis
 
-### Free Tier (Gemini 2.0 Flash Experimental)
+### Free Tier (Gemini 1.5 Flash)
 - **Cost**: $0.00
 - **Rate Limits**: Generous (60 RPM typically)
-- **Perfect For**: Individual users, small teams, testing
-- **Limitations**: May have rate limits during peak usage
+- **Perfect For**: Individual users, small teams, production use
+- **Status**: Stable, production-ready
 
 ### Cost Comparison
 ```
@@ -255,7 +255,7 @@ Intelligent reconnaissance:
 ## 🙏 Acknowledgments
 
 ### Technologies Used
-- **Google Gemini 2.0 Flash**: Free AI model
+- **Google Gemini 1.5 Flash**: Free AI model
 - **Python 3.12**: Programming language
 - **YAML**: Configuration management
 - **JSON**: Data interchange

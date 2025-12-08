@@ -57,7 +57,7 @@ Detective Joe (**DJ**) v1.5 is a **next-generation automated reconnaissance fram
 - **Demo Plugin**: Testing mode without external dependencies
 
 ### AI-Powered Intelligence Analysis (New!)
-- **Google Gemini 2.0 Flash Integration**: FREE AI-powered reconnaissance analysis
+- **Google Gemini 1.5 Flash Integration**: FREE AI-powered reconnaissance analysis
 - **Intelligent Risk Assessment**: Context-aware risk scoring and classification
 - **Advanced Vulnerability Detection**: AI-driven identification of security issues with CVE correlation
 - **Natural Language Insights**: Human-readable security summaries and recommendations
@@ -184,7 +184,7 @@ The setup script will:
 
 ### 🤖 AI Configuration (Recommended)
 
-Detective Joe now includes **FREE** AI-powered analysis using Google Gemini 2.0 Flash (Experimental)!
+Detective Joe now includes **FREE** AI-powered analysis using Google Gemini 1.5 Flash (Experimental)!
 
 ```bash
 # Get your free API key from: https://makersuite.google.com/app/apikey
@@ -357,7 +357,7 @@ $ python3 detectivejoe.py -c website -t example.com -p standard
 
 ======================================================================
 AI-POWERED INTELLIGENCE ANALYSIS
-Powered by Google Gemini 2.0 Flash
+Powered by Google Gemini 1.5 Flash
 ======================================================================
 
 OVERALL RISK LEVEL: HIGH (Score: 68/100)
@@ -383,9 +383,9 @@ SUMMARY:
 
 ## 🤖 AI-Powered Intelligence Features
 
-### Gemini 2.0 Flash Integration (FREE!)
+### Gemini 1.5 Flash Integration (FREE!)
 
-Detective Joe now includes intelligent analysis powered by Google's Gemini 2.0 Flash AI:
+Detective Joe now includes intelligent analysis powered by Google's Gemini 1.5 Flash AI:
 
 **Quick Setup:**
 ```bash
@@ -400,7 +400,7 @@ python3 detectivejoe.py -c website -t example.com
 ```
 ======================================================================
 AI-POWERED INTELLIGENCE ANALYSIS
-Powered by Google Gemini 2.0 Flash
+Powered by Google Gemini 1.5 Flash
 ======================================================================
 
 OVERALL RISK LEVEL: HIGH (Score: 68/100)
@@ -450,7 +450,7 @@ MITRE ATT&CK TECHNIQUES OBSERVED:
 - 🔍 **Smart Prioritization**: Recommendations ranked by actual risk and impact
 - 📝 **Professional Reports**: Stakeholder-ready summaries and technical details
 - 💡 **Actionable Insights**: Specific remediation steps, not generic advice
-- 🆓 **Completely Free**: Gemini 2.0 Flash has generous free tier limits
+- 🆓 **Completely Free**: Gemini 1.5 Flash has generous free tier limits
 
 **See [AI_INTEGRATION.md](AI_INTEGRATION.md) for complete setup guide.**
 

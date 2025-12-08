@@ -40,11 +40,11 @@ Found 5 open ports, 3 services
 Recommendations: Standard security practices
 ```
 
-### With AI (Gemini 2.0 Flash)
+### With AI (Gemini 1.5 Flash)
 ```
 ======================================================================
 AI-POWERED INTELLIGENCE ANALYSIS
-Powered by Google Gemini 2.0 Flash
+Powered by Google Gemini 1.5 Flash
 ======================================================================
 
 OVERALL RISK LEVEL: MEDIUM (Score: 45/100)
