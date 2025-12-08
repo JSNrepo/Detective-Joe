@@ -57,10 +57,15 @@ Detective Joe (**DJ**) v1.5 is a **next-generation automated reconnaissance fram
 - **Demo Plugin**: Testing mode without external dependencies
 
 ### AI-Powered Intelligence Analysis (New!)
+- **Google Gemini 2.5 Flash Integration**: FREE AI-powered reconnaissance analysis
+- **Intelligent Risk Assessment**: Context-aware risk scoring and classification
+- **Advanced Vulnerability Detection**: AI-driven identification of security issues with CVE correlation
+- **Natural Language Insights**: Human-readable security summaries and recommendations
+- **Attack Surface Analysis**: Comprehensive evaluation and quantification of exposed assets
+- **Smart Recommendations**: Context-aware, prioritized security guidance
+- **Executive Summaries**: Professional reports ready for stakeholders
 - **Automated Threat Assessment**: AI-driven risk scoring and vulnerability correlation
 - **MITRE ATT&CK Mapping**: Automatic mapping of reconnaissance activities to ATT&CK framework
-- **Attack Surface Analysis**: Quantification and analysis of exposed attack vectors
-- **Smart Recommendations**: Context-aware security recommendations based on findings
 - **CVE Correlation**: Automatic linking of identified vulnerabilities to CVE database
 
 ### Export Capabilities
@@ -174,8 +179,29 @@ chmod +x setup.sh
 The setup script will:
 - ✅ Check Python 3 and pip availability
 - ✅ Create a virtual environment in `.venv/`
-- ✅ Install all requirements safely
+- ✅ Install all requirements safely (including Gemini AI)
 - ✅ Provide clear next steps
+
+### 🤖 AI Configuration (Recommended)
+
+Detective Joe now includes **FREE** AI-powered analysis using Google Gemini 2.5 Flash!
+
+```bash
+# Get your free API key from: https://makersuite.google.com/app/apikey
+export GEMINI_API_KEY="your-api-key-here"
+
+# Or add to your shell config for persistence
+echo 'export GEMINI_API_KEY="your-api-key-here"' >> ~/.bashrc
+```
+
+**Features with AI enabled:**
+- 🎯 Intelligent risk assessment and scoring
+- 🔍 Advanced vulnerability detection with CVE correlation
+- 📊 Comprehensive attack surface analysis
+- 💡 Context-aware security recommendations
+- 📝 Professional executive summaries
+
+See [AI_INTEGRATION.md](AI_INTEGRATION.md) for detailed setup and usage.
 
 After setup, always activate the virtual environment before using Detective Joe:
 ```bash

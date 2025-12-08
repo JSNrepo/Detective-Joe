@@ -4,6 +4,9 @@
 # YAML processing for profiles configuration
 PyYAML>=6.0
 
+# Google Gemini AI integration
+google-generativeai>=0.3.0
+
 # Optional dependencies for enhanced functionality
 # These are not strictly required but provide additional features
 

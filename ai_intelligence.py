@@ -2,6 +2,7 @@
 """
 AI-Powered Intelligence Analyzer for Detective Joe v1.5
 Advanced analysis and correlation of reconnaissance data using AI techniques.
+Enhanced with Google Gemini 2.5 Flash for intelligent insights.
 """
 
 import re
@@ -10,15 +11,35 @@ from typing import Dict, Any, List, Set, Tuple
 from collections import defaultdict
 import logging
 
+# Import Gemini service
+try:
+    from gemini_service import GeminiService
+    GEMINI_AVAILABLE = True
+except ImportError:
+    GEMINI_AVAILABLE = False
+
 
 class AIIntelligenceAnalyzer:
     """
     AI-powered intelligence analyzer for reconnaissance data.
     Provides automated threat assessment, vulnerability correlation, and actionable recommendations.
+    Now enhanced with Google Gemini 2.5 Flash AI for deeper insights.
     """
     
     def __init__(self):
         self.logger = logging.getLogger("dj.ai_analyzer")
+        
+        # Initialize Gemini AI service
+        self.gemini = None
+        if GEMINI_AVAILABLE:
+            try:
+                self.gemini = GeminiService()
+                if self.gemini.is_enabled():
+                    self.logger.info("Gemini AI integration enabled")
+                else:
+                    self.logger.info("Gemini AI available but not configured")
+            except Exception as e:
+                self.logger.warning(f"Failed to initialize Gemini service: {e}")
         
         # Known vulnerability patterns and indicators
         self.vulnerability_patterns = {
@@ -44,6 +65,7 @@ class AIIntelligenceAnalyzer:
                                      plugin_results: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Perform comprehensive AI-powered analysis of reconnaissance results.
+        Now enhanced with Gemini 2.5 Flash AI for intelligent insights.
         
         Args:
             artifacts: List of extracted artifacts from intelligence engine
@@ -52,6 +74,38 @@ class AIIntelligenceAnalyzer:
         Returns:
             Analysis report with risk assessment and recommendations
         """
+        # Try Gemini AI analysis first if available
+        if self.gemini and self.gemini.is_enabled():
+            try:
+                self.logger.info("Using Gemini AI for reconnaissance analysis")
+                target = artifacts[0].get("target", "unknown") if artifacts else "unknown"
+                
+                # Get AI-powered analysis
+                gemini_analysis = self.gemini.analyze_recon_data(artifacts, plugin_results, target)
+                
+                # Enhance with traditional analysis
+                traditional_analysis = self._perform_traditional_analysis(artifacts, plugin_results)
+                
+                # Merge analyses (Gemini takes priority)
+                merged_analysis = self._merge_analyses(gemini_analysis, traditional_analysis)
+                merged_analysis["ai_powered"] = True
+                merged_analysis["ai_engine"] = "Gemini 2.5 Flash"
+                
+                return merged_analysis
+                
+            except Exception as e:
+                self.logger.warning(f"Gemini AI analysis failed, falling back to traditional: {e}")
+        
+        # Fallback to traditional analysis
+        self.logger.info("Using traditional rule-based analysis")
+        analysis = self._perform_traditional_analysis(artifacts, plugin_results)
+        analysis["ai_powered"] = False
+        analysis["ai_engine"] = "Rule-based"
+        return analysis
+    
+    def _perform_traditional_analysis(self, artifacts: List[Dict[str, Any]], 
+                                     plugin_results: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Perform traditional rule-based analysis (original method)."""
         analysis = {
             "risk_score": 0,
             "risk_level": "unknown",
@@ -96,6 +150,45 @@ class AIIntelligenceAnalyzer:
         })
         
         return analysis
+    
+    def _merge_analyses(self, gemini_analysis: Dict[str, Any], 
+                       traditional_analysis: Dict[str, Any]) -> Dict[str, Any]:
+        """Merge Gemini AI analysis with traditional analysis."""
+        merged = gemini_analysis.copy()
+        
+        # Add MITRE techniques from traditional analysis
+        if "mitre_techniques" not in merged or not merged["mitre_techniques"]:
+            merged["mitre_techniques"] = traditional_analysis.get("mitre_techniques", [])
+        
+        # Merge vulnerabilities (combine both lists, remove duplicates)
+        trad_vulns = traditional_analysis.get("vulnerabilities", [])
+        gemini_vulns = merged.get("vulnerabilities", [])
+        
+        # Add traditional vulnerabilities that aren't in Gemini's list
+        for trad_vuln in trad_vulns:
+            trad_desc = trad_vuln.get("description", "").lower()
+            found = False
+            for gem_vuln in gemini_vulns:
+                if trad_desc in gem_vuln.get("description", "").lower():
+                    found = True
+                    break
+            if not found:
+                gemini_vulns.append(trad_vuln)
+        
+        merged["vulnerabilities"] = gemini_vulns
+        
+        # Enhance attack surface with traditional analysis
+        trad_surface = traditional_analysis.get("attack_surface", {})
+        gem_surface = merged.get("attack_surface", {})
+        
+        # Fill in missing fields from traditional analysis
+        for key in trad_surface:
+            if key not in gem_surface or gem_surface[key] == 0:
+                gem_surface[key] = trad_surface[key]
+        
+        merged["attack_surface"] = gem_surface
+        
+        return merged
     
     def _analyze_artifacts(self, artifacts: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Analyze artifacts for patterns and security concerns."""
@@ -393,12 +486,41 @@ class AIIntelligenceAnalyzer:
     
     def generate_executive_summary(self, analysis: Dict[str, Any]) -> str:
         """Generate human-readable executive summary."""
+        # Try Gemini AI for summary generation if available
+        if self.gemini and self.gemini.is_enabled():
+            try:
+                target = "the target"
+                gemini_summary = self.gemini.generate_human_readable_summary(analysis, target)
+                if gemini_summary and len(gemini_summary) > 50:
+                    # Prepend header and return
+                    summary_lines = []
+                    summary_lines.append("=" * 70)
+                    summary_lines.append("AI-POWERED INTELLIGENCE ANALYSIS")
+                    summary_lines.append("Powered by Google Gemini 2.5 Flash")
+                    summary_lines.append("=" * 70)
+                    summary_lines.append("")
+                    summary_lines.append(gemini_summary)
+                    summary_lines.append("")
+                    summary_lines.append(self._format_traditional_summary(analysis))
+                    return "\n".join(summary_lines)
+            except Exception as e:
+                self.logger.warning(f"Gemini summary generation failed: {e}")
+        
+        # Fallback to traditional summary
+        return self._format_traditional_summary(analysis)
+    
+    def _format_traditional_summary(self, analysis: Dict[str, Any]) -> str:
+        """Format traditional summary (original method)."""
         summary_lines = []
         
-        summary_lines.append("=" * 70)
-        summary_lines.append("AI-POWERED INTELLIGENCE ANALYSIS")
-        summary_lines.append("=" * 70)
-        summary_lines.append("")
+        # Only add header if not already added by Gemini
+        if "Powered by" not in str(analysis.get("ai_engine", "")):
+            summary_lines.append("=" * 70)
+            summary_lines.append("AI-POWERED INTELLIGENCE ANALYSIS")
+            if analysis.get("ai_powered"):
+                summary_lines.append(f"Powered by {analysis.get('ai_engine', 'Unknown')}")
+            summary_lines.append("=" * 70)
+            summary_lines.append("")
         
         # Risk assessment
         risk_level = analysis.get("risk_level", "UNKNOWN")
