@@ -486,6 +486,9 @@ class AIIntelligenceAnalyzer:
     
     def generate_executive_summary(self, analysis: Dict[str, Any]) -> str:
         """Generate human-readable executive summary."""
+        # Track if header was already added
+        header_added = False
+        
         # Try Gemini AI for summary generation if available
         if self.gemini and self.gemini.is_enabled():
             try:
@@ -496,25 +499,25 @@ class AIIntelligenceAnalyzer:
                     summary_lines = []
                     summary_lines.append("=" * 70)
                     summary_lines.append("AI-POWERED INTELLIGENCE ANALYSIS")
-                    summary_lines.append("Powered by Google Gemini 2.5 Flash")
+                    summary_lines.append("Powered by Google Gemini 2.0 Flash")
                     summary_lines.append("=" * 70)
                     summary_lines.append("")
                     summary_lines.append(gemini_summary)
                     summary_lines.append("")
-                    summary_lines.append(self._format_traditional_summary(analysis))
+                    summary_lines.append(self._format_traditional_summary(analysis, skip_header=True))
                     return "\n".join(summary_lines)
             except Exception as e:
                 self.logger.warning(f"Gemini summary generation failed: {e}")
         
         # Fallback to traditional summary
-        return self._format_traditional_summary(analysis)
+        return self._format_traditional_summary(analysis, skip_header=False)
     
-    def _format_traditional_summary(self, analysis: Dict[str, Any]) -> str:
+    def _format_traditional_summary(self, analysis: Dict[str, Any], skip_header: bool = False) -> str:
         """Format traditional summary (original method)."""
         summary_lines = []
         
-        # Only add header if not already added by Gemini
-        if "Powered by" not in str(analysis.get("ai_engine", "")):
+        # Add header only if not already added by Gemini
+        if not skip_header:
             summary_lines.append("=" * 70)
             summary_lines.append("AI-POWERED INTELLIGENCE ANALYSIS")
             if analysis.get("ai_powered"):

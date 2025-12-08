@@ -1,7 +1,7 @@
 # AI Integration Guide for Detective Joe
 
 ## Overview
-Detective Joe now includes intelligent reconnaissance analysis powered by **Google Gemini 2.5 Flash**, a free and powerful AI model that provides:
+Detective Joe now includes intelligent reconnaissance analysis powered by **Google Gemini 2.0 Flash (Experimental)**, a free and powerful AI model that provides:
 
 - 🤖 **Intelligent Analysis**: Deep insights from reconnaissance data
 - 🎯 **Risk Assessment**: Automated security risk scoring and classification
@@ -34,7 +34,7 @@ pip install -r requirements.txt
 3. Click "Create API Key"
 4. Copy your API key
 
-**Note**: Gemini 2.5 Flash is **FREE** with generous rate limits!
+**Note**: Gemini 2.0 Flash Experimental is **FREE** with generous rate limits!
 
 ### 3. Configure the API Key
 
@@ -246,11 +246,12 @@ python3 detectivejoe.py -c website -t example.com
 
 ## Cost Information
 
-### Free Tier (Gemini 2.5 Flash)
+### Free Tier (Gemini 2.0 Flash Experimental)
 - **Model**: gemini-2.0-flash-exp
 - **Cost**: FREE
 - **Rate Limits**: Generous (check Google's current limits)
 - **Perfect for**: Most reconnaissance needs
+- **Note**: This is an experimental model and may be updated
 
 ### Paid Tiers (Optional)
 - If you need higher limits, consider Google's paid plans
@@ -301,7 +302,7 @@ Immediate Actions Required:
 ## Credits
 
 - **Framework**: Detective Joe v1.5
-- **AI Engine**: Google Gemini 2.5 Flash
+- **AI Engine**: Google Gemini 2.0 Flash (Experimental)
 - **Integration**: Open Source Community
 
 ---

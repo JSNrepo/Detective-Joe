@@ -44,11 +44,12 @@ class GeminiService:
             # Configure Gemini
             genai.configure(api_key=self.api_key)
             
-            # Use Gemini 2.5 Flash model (free tier available)
+            # Use Gemini 2.0 Flash Experimental model (free tier available)
+            # Note: This is currently in preview and may be updated to stable release
             self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
             
             self.enabled = True
-            self.logger.info("Gemini 2.5 Flash AI initialized successfully")
+            self.logger.info("Gemini 2.0 Flash AI initialized successfully")
             
         except ImportError:
             self.logger.warning("google-generativeai package not installed. Run: pip install google-generativeai")
@@ -275,15 +276,22 @@ Provide ONLY valid JSON, no markdown formatting or additional text."""
             artifact_type = artifact.get("type", "unknown")
             artifact_types[artifact_type] = artifact_types.get(artifact_type, 0) + 1
         
-        # Calculate basic risk score
-        risk_score = 0
-        risk_score += artifact_types.get("port", 0) * 2
-        risk_score += artifact_types.get("service", 0) * 3
-        risk_score += artifact_types.get("subdomain", 0) * 1
-        risk_score += artifact_types.get("email", 0) * 1
-        risk_score = min(risk_score, 100)
+        # Calculate basic risk score using weighted factors
+        # Risk score weights: higher values indicate more significant findings
+        RISK_WEIGHT_PORT = 2        # Each open port adds 2 points
+        RISK_WEIGHT_SERVICE = 3     # Each service adds 3 points  
+        RISK_WEIGHT_SUBDOMAIN = 1   # Each subdomain adds 1 point
+        RISK_WEIGHT_EMAIL = 1       # Each exposed email adds 1 point
+        MAX_RISK_SCORE = 100        # Cap risk score at 100
         
-        # Determine risk level
+        risk_score = 0
+        risk_score += artifact_types.get("port", 0) * RISK_WEIGHT_PORT
+        risk_score += artifact_types.get("service", 0) * RISK_WEIGHT_SERVICE
+        risk_score += artifact_types.get("subdomain", 0) * RISK_WEIGHT_SUBDOMAIN
+        risk_score += artifact_types.get("email", 0) * RISK_WEIGHT_EMAIL
+        risk_score = min(risk_score, MAX_RISK_SCORE)
+        
+        # Determine risk level based on score
         if risk_score >= 80:
             risk_level = "CRITICAL"
         elif risk_score >= 50:
