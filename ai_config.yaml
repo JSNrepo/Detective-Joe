@@ -6,7 +6,7 @@
 # Set your API key here or as an environment variable GEMINI_API_KEY
 gemini:
   api_key: ""  # Leave empty to use GEMINI_API_KEY environment variable
-  model: "gemini-1.5-flash-latest"  # Stable free tier model
+  model: "gemini-2.5-flash"  # Latest model with high-throughput, low-latency
   enabled: true
   
   # Generation settings

@@ -1,7 +1,7 @@
 # AI Integration Guide for Detective Joe
 
 ## Overview
-Detective Joe now includes intelligent reconnaissance analysis powered by **Google Gemini 1.5 Flash**, a free, stable, and powerful AI model that provides:
+Detective Joe now includes intelligent reconnaissance analysis powered by **Google Gemini 2.5 Flash**, a free, stable, and powerful AI model that provides:
 
 - 🤖 **Intelligent Analysis**: Deep insights from reconnaissance data
 - 🎯 **Risk Assessment**: Automated security risk scoring and classification
@@ -18,14 +18,16 @@ Detective Joe now includes intelligent reconnaissance analysis powered by **Goog
 # Activate your virtual environment
 source .venv/bin/activate
 
-# Install the Gemini AI package
-pip install google-generativeai
+# Install the NEW Gemini AI package (google-genai for Gemini 2.5 Flash)
+pip install google-genai
 ```
 
 Or reinstall all requirements:
 ```bash
 pip install -r requirements.txt
 ```
+
+**Important:** Gemini 2.5 Flash uses the NEW `google-genai` SDK (not the old `google-generativeai`).
 
 ### 2. Get Your Free Gemini API Key
 
@@ -34,7 +36,7 @@ pip install -r requirements.txt
 3. Click "Create API Key"
 4. Copy your API key
 
-**Note**: Gemini 1.5 Flash is **FREE** with generous rate limits and is the stable production-ready version!
+**Note**: Gemini 2.5 Flash is **FREE** with generous rate limits and is the stable production-ready version!
 
 ### 3. Configure the API Key
 
@@ -246,12 +248,13 @@ python3 detectivejoe.py -c website -t example.com
 
 ## Cost Information
 
-### Free Tier (Gemini 1.5 Flash)
-- **Model**: gemini-1.5-flash-latest
+### Free Tier (Gemini 2.5 Flash)
+- **Model**: gemini-2.5-flash
+- **SDK**: google-genai (NEW)
 - **Cost**: FREE
-- **Rate Limits**: Generous (60 RPM for free tier, check Google's current limits)
-- **Perfect for**: Most reconnaissance needs
-- **Status**: Stable, production-ready
+- **Rate Limits**: High-throughput, low-latency (check Google's current limits)
+- **Perfect for**: Most reconnaissance needs, production use
+- **Status**: Latest model with improved performance
 
 ### Paid Tiers (Optional)
 - If you need higher limits, consider Google's paid plans
@@ -302,7 +305,7 @@ Immediate Actions Required:
 ## Credits
 
 - **Framework**: Detective Joe v1.5
-- **AI Engine**: Google Gemini 1.5 Flash
+- **AI Engine**: Google Gemini 2.5 Flash
 - **Integration**: Open Source Community
 
 ---

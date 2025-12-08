@@ -2,6 +2,7 @@
 """
 Gemini AI Service for Detective Joe
 Handles all interactions with Google Gemini 2.5 Flash API for intelligent reconnaissance analysis.
+Uses the new google-genai SDK for Gemini 2.5 Flash support.
 """
 
 import os
@@ -14,6 +15,7 @@ class GeminiService:
     """
     Service class for interacting with Google Gemini 2.5 Flash API.
     Provides intelligent analysis of reconnaissance data.
+    Uses the new google-genai SDK (not google-generativeai).
     """
     
     def __init__(self, api_key: Optional[str] = None):
@@ -25,40 +27,38 @@ class GeminiService:
         """
         self.logger = logging.getLogger("dj.gemini")
         self.api_key = api_key or os.environ.get("GEMINI_API_KEY")
-        self.model = None
+        self.client = None
         self.enabled = False
         
         # Try to initialize Gemini
         self._initialize_gemini()
     
     def _initialize_gemini(self) -> None:
-        """Initialize Gemini AI client."""
+        """Initialize Gemini AI client with new google-genai SDK."""
         try:
-            import google.generativeai as genai
+            from google import genai
             
             if not self.api_key:
                 self.logger.warning("No Gemini API key found. AI features will use fallback analysis.")
                 self.logger.info("Set GEMINI_API_KEY environment variable to enable Gemini AI features.")
                 return
             
-            # Configure Gemini
-            genai.configure(api_key=self.api_key)
-            
-            # Use Gemini 1.5 Flash model (stable, free tier available)
-            # This is the stable production-ready version of the Flash model
-            self.model = genai.GenerativeModel('gemini-1.5-flash-latest')
+            # Initialize the new Gemini client
+            # The client automatically picks up the API key from the environment variable
+            os.environ['GEMINI_API_KEY'] = self.api_key
+            self.client = genai.Client()
             
             self.enabled = True
-            self.logger.info("Gemini 1.5 Flash AI initialized successfully")
+            self.logger.info("Gemini 2.5 Flash AI initialized successfully")
             
         except ImportError:
-            self.logger.warning("google-generativeai package not installed. Run: pip install google-generativeai")
+            self.logger.warning("google-genai package not installed. Run: pip install google-genai")
         except Exception as e:
             self.logger.warning(f"Failed to initialize Gemini AI: {e}")
     
     def is_enabled(self) -> bool:
         """Check if Gemini AI is enabled and ready."""
-        return self.enabled and self.model is not None
+        return self.enabled and self.client is not None
     
     def analyze_recon_data(self, artifacts: List[Dict[str, Any]], 
                           plugin_results: List[Dict[str, Any]],
@@ -84,8 +84,11 @@ class GeminiService:
             # Create prompt for Gemini
             prompt = self._create_analysis_prompt(data_summary, target)
             
-            # Get AI analysis
-            response = self.model.generate_content(prompt)
+            # Get AI analysis using new SDK
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
             
             # Parse and structure the response
             analysis = self._parse_ai_response(response.text)
@@ -339,7 +342,7 @@ Provide ONLY valid JSON, no markdown formatting or additional text."""
         Returns:
             Formatted text summary
         """
-        if not self.is_enabled():
+        if self.is_enabled():
             prompt = f"""Create a brief, professional security summary for this reconnaissance report:
 
 Target: {target}
@@ -352,9 +355,11 @@ Key Findings:
 Please provide a 3-4 sentence executive summary that a security manager would understand."""
             
             try:
-                if self.model:
-                    response = self.model.generate_content(prompt)
-                    return response.text.strip()
+                response = self.client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt
+                )
+                return response.text.strip()
             except Exception as e:
                 self.logger.error(f"Failed to generate summary: {e}")
         
