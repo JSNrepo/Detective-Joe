@@ -23,10 +23,27 @@ Detective Joe (**DJ**) v1.5 is a **next-generation automated reconnaissance fram
 - 👤 **People Investigation**: OSINT on individuals, social media presence, contact discovery
 - 🖥️ **IP / Server Investigation**: Network analysis, service detection, vulnerability assessment
 
-### Built-in Plugins (Proof of Concept)
+### Built-in Plugins
 - **Nmap Plugin**: Network scanning with intelligent command building
 - **theHarvester Plugin**: Email harvesting and OSINT data collection
-- **Extensible Framework**: Easy addition of new tool plugins
+- **Sublist3r Plugin**: Subdomain enumeration and discovery
+- **WhatWeb Plugin**: Web technology fingerprinting and identification
+- **SSLScan Plugin**: SSL/TLS security analysis and vulnerability detection
+- **DNSRecon Plugin**: Comprehensive DNS enumeration and zone transfer testing
+- **WHOIS Plugin**: Domain registration and ownership information gathering
+- **Demo Plugin**: Testing mode without external dependencies
+
+### AI-Powered Intelligence Analysis (New!)
+- **Automated Threat Assessment**: AI-driven risk scoring and vulnerability correlation
+- **MITRE ATT&CK Mapping**: Automatic mapping of reconnaissance activities to ATT&CK framework
+- **Attack Surface Analysis**: Quantification and analysis of exposed attack vectors
+- **Smart Recommendations**: Context-aware security recommendations based on findings
+- **CVE Correlation**: Automatic linking of identified vulnerabilities to CVE database
+
+### Export Capabilities
+- **Multiple Formats**: TXT, HTML, JSON, CSV, XML export support
+- **Industry Standards**: CSV and XML formats for integration with other security tools
+- **Structured Data**: Machine-readable outputs for automation and orchestration
 
 ---
 
@@ -164,18 +181,41 @@ chmod +x detectivejoe.py
 **Important for Kali Linux users:** Due to PEP 668 externally-managed-environment restrictions, Detective Joe **requires** a virtual environment. The automated setup handles this automatically.
 
 ### System Dependencies
-Detective Joe v1.5 leverages existing reconnaissance tools. Install them via:
+Detective Joe v1.5 leverages existing reconnaissance tools. Install the following for full functionality:
 
 **Kali Linux (recommended):**
 ```bash
 sudo apt update
-sudo apt install nmap theharvester sublist3r amass wafw00f whatweb nikto dirb sslscan dnsrecon
+sudo apt install nmap theharvester sublist3r whatweb sslscan dnsrecon whois
+```
+
+**Individual Tool Installation:**
+```bash
+# Core scanning tools (usually pre-installed on Kali)
+sudo apt install nmap whois dnsrecon sslscan
+
+# Python-based tools
+sudo apt install theharvester sublist3r whatweb
+
+# Alternative: Install via pip
+pip install theHarvester sublist3r
+
+# Note: Some tools may need to be installed from GitHub
+# git clone https://github.com/laramies/theHarvester && cd theHarvester && pip install -r requirements.txt
 ```
 
 **Other Linux distributions:**
 ```bash
-# Install tools according to your distribution's package manager
-# Many tools are also available via GitHub or pip
+# Ubuntu/Debian
+sudo apt install nmap whois dnsutils sslscan
+
+# Fedora/RHEL
+sudo dnf install nmap whois bind-utils
+
+# macOS
+brew install nmap
+
+# For Python tools, use pip in the virtual environment
 ```
 
 ### 🚀 Quick Start with Demo Mode
@@ -348,7 +388,7 @@ Plugins are automatically discovered from the `plugins/` directory through YAML 
 
 ## 📄 Report Output
 
-### Enhanced Report Structure
+### Enhanced Report Structure with AI Analysis
 ```
 DETECTIVE JOE v1.5 INVESTIGATION REPORT
 =======================================
@@ -373,6 +413,54 @@ Domains: 5
 IPs: 2
 Open Ports: 4
 Services: 3
+
+======================================================================
+AI-POWERED INTELLIGENCE ANALYSIS
+======================================================================
+
+OVERALL RISK LEVEL: HIGH (Score: 67/100)
+
+KEY FINDINGS:
+  • Discovered 12 subdomain(s)
+  • Identified 8 open port(s)
+  • Enumerated 5 running service(s)
+  • Found 3 high/critical severity issue(s)
+  • Fingerprinted 7 web technolog(ies)
+
+IDENTIFIED VULNERABILITIES: 5
+  [HIGH] Outdated SSL/TLS version: SSLv3
+  [HIGH] High-risk port 3389 is exposed
+  [MEDIUM] Potentially vulnerable technology detected: wordpress
+  [HIGH] SSLv3 is enabled (vulnerable to POODLE)
+  [MEDIUM] TLSv1.0/1.1 enabled (deprecated, should upgrade)
+
+ATTACK SURFACE ANALYSIS:
+  • Subdomains: 12
+  • Open Ports: 8
+  • Services: 5
+  • Exposed Emails: 3
+
+POTENTIAL ATTACK VECTORS:
+  • Network service exploitation
+  • SSL/TLS downgrade attacks
+  • Subdomain takeover
+  • Web application vulnerabilities
+  • Social engineering / Phishing
+
+MITRE ATT&CK TECHNIQUES OBSERVED:
+  • T1590.001 - Gather Victim Network Information: Domain Properties
+  • T1046 - Network Service Scanning
+  • T1590.002 - Gather Victim Network Information: DNS
+
+TOP RECOMMENDATIONS:
+  • Upgrade SSL/TLS configuration to support only TLS 1.2+ protocols
+  • Review and restrict access to high-risk ports: 3389, 445
+  • Implement firewall rules and IP whitelisting for sensitive services
+  • Implement security headers (CSP, HSTS, X-Frame-Options)
+  • Ensure wordpress is updated to latest version
+  • Regular security audits and penetration testing
+
+======================================================================
 
 [NMAP] - Status: COMPLETED
 ==================================================
@@ -409,8 +497,23 @@ Confidence: 0.80
 Tags: email, contact
 Metadata: {"domain": "example.com"}
 
-[Additional formats: HTML with interactive features, JSON with structured data]
 ```
+
+### Available Export Formats
+Detective Joe now supports multiple export formats for integration with other tools:
+
+1. **TXT** - Human-readable text reports with full details
+2. **HTML** - Interactive HTML reports with styling and navigation
+3. **JSON** - Machine-readable JSON format for automation
+4. **CSV** - Spreadsheet-compatible format for analysis tools
+5. **XML** - Structured XML format for enterprise security tools
+
+All formats include:
+- Complete investigation metadata
+- AI-powered risk analysis and recommendations
+- Vulnerability details with CVE references
+- Artifact listings with confidence scores
+- MITRE ATT&CK technique mappings
 
 ---
 
@@ -442,51 +545,57 @@ Tests cover:
 - Plugin architecture with auto-discovery from YAML manifests
 - Profile-based configuration with advanced controls
 - CLI and interactive modes with comprehensive argument parsing
-- Multi-format report generation (TXT/HTML/JSON)
+- Multi-format report generation (TXT/HTML/JSON/CSV/XML)
 - Comprehensive test infrastructure with async support
+
+**✅ AI-Powered Intelligence (NEW - v1.5+)**
+- Automated threat assessment and risk scoring
+- Vulnerability correlation and CVE mapping
+- MITRE ATT&CK technique identification
+- Attack surface quantification and analysis
+- Context-aware security recommendations
+- Smart artifact analysis and pattern recognition
 
 **✅ Framework Components (Implemented)**
 - Artifact extraction and management system
 - Automatic deduplication with confidence scoring
-- Basic CVE pattern recognition in output
+- Advanced CVE pattern recognition and enrichment
 - Persistent artifact database (JSON/binary)
 - State management with save/resume/kill functionality
 - Investigation persistence and recovery
 - Anonymity layer with TOR/proxy/User-Agent rotation
 - Plugin chaining based on artifact types
 
-**⚠️ Plugin System (Requires External Tools)**
-- YAML-based plugin manifests with metadata ✅
-- Auto-discovery and dynamic loading ✅
-- Nmap plugin with intelligent command building ⚠️ *requires nmap installation*
-- theHarvester plugin with comprehensive parsing ⚠️ *requires theharvester installation*
-- Graceful handling of missing tools ✅
+**✅ Plugin Library (8 Plugins)**
+- ✅ **Nmap**: Network scanning and service detection
+- ✅ **theHarvester**: Email harvesting and OSINT
+- ✅ **Sublist3r**: Subdomain enumeration
+- ✅ **WhatWeb**: Web technology fingerprinting
+- ✅ **SSLScan**: SSL/TLS security analysis
+- ✅ **DNSRecon**: DNS enumeration and zone transfers
+- ✅ **WHOIS**: Domain registration information
+- ✅ **Demo**: Testing mode (no external dependencies)
 
-**📋 Dependencies Required for Full Functionality**
-Detective Joe's plugins require external reconnaissance tools to be installed:
+**⚠️ External Tool Requirements**
+All plugins (except Demo) require their respective tools to be installed:
 ```bash
-# Ubuntu/Debian
-sudo apt install nmap
-
-# Install theHarvester
-pip install theHarvester
-# OR
-git clone https://github.com/laramies/theHarvester
+# Quick install on Kali Linux
+sudo apt install nmap theharvester sublist3r whatweb sslscan dnsrecon whois
 ```
 
 ### Upcoming Releases
 
-**v1.6 - Extended Plugin Library**
-- Additional built-in plugins (sublist3r, amass, whatweb, nikto)
-- Plugin dependency management
-- Plugin marketplace/registry concept
+**v1.6 - Extended Plugin Library (In Progress)**
+- Additional plugins: Amass, Nikto, Dirb, Masscan
+- Plugin dependency management and auto-installation
 - Enhanced error recovery and retry logic
+- Rate limiting and advanced evasion techniques
 
-**v1.7 - Advanced Intelligence**
-- AI-powered result correlation and analysis
-- Intelligent scan prioritization
-- Vulnerability scoring and risk assessment
-- Automated follow-up recommendations
+**v1.7 - Advanced AI Features**
+- Machine learning-based threat prediction
+- Automated attack path analysis
+- Integration with threat intelligence feeds
+- Natural language report generation
 
 **v1.8 - Enterprise Features**
 - Distributed scanning across multiple nodes

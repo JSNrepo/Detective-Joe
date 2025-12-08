@@ -41,6 +41,7 @@ try:
     from intelligence import IntelligenceEngine
     from reports import ReportManager
     from ai_intelligence import AIIntelligenceAnalyzer
+    from export_utils import ExportManager
 except ImportError as e:
     print(f"Error: Failed to import required modules: {e}")
     print("Please ensure all framework components are in the same directory.")
@@ -88,6 +89,7 @@ class DetectiveJoe:
         self.intelligence = IntelligenceEngine(self.state_dir)
         self.report_manager = ReportManager(self.reports_dir)
         self.ai_analyzer = AIIntelligenceAnalyzer()
+        self.export_manager = ExportManager(self.reports_dir)
         
         # Initialize plugins using discovery system
         self.plugins = self._init_plugins()
@@ -681,6 +683,13 @@ EXECUTIVE SUMMARY
         """
         try:
             reports = self.report_manager.generate_all_reports(investigation_result, artifacts)
+            
+            # Also generate CSV and XML exports
+            exports = self.export_manager.export_all_formats(investigation_result, artifacts)
+            
+            # Merge exports with reports
+            reports.update(exports)
+            
             return reports
         except Exception as e:
             self.logger.error(f"Error saving reports: {e}")
