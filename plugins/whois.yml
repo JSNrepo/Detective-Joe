@@ -1,0 +1,13 @@
+name: "whois"
+version: "1.0"
+description: "WHOIS lookup plugin for domain registration and ownership information"
+tool_name: "whois"
+required_tools: ["whois"]
+categories: ["website", "organisation"]
+plugin_class: "WhoisPlugin"
+module_path: "whois_plugin"
+artifacts:
+  produces: ["registrar", "nameservers", "registration_dates", "contacts"]
+  consumes: ["domains"]
+chain_priority: 1
+tags: ["osint", "whois", "domain", "ownership"]

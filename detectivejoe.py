@@ -40,6 +40,7 @@ try:
     from plugins import PluginBase, NmapPlugin, TheHarvesterPlugin, PluginDiscovery
     from intelligence import IntelligenceEngine
     from reports import ReportManager
+    from ai_intelligence import AIIntelligenceAnalyzer
 except ImportError as e:
     print(f"Error: Failed to import required modules: {e}")
     print("Please ensure all framework components are in the same directory.")
@@ -86,6 +87,7 @@ class DetectiveJoe:
         self.plugin_discovery = PluginDiscovery(self.plugins_dir)
         self.intelligence = IntelligenceEngine(self.state_dir)
         self.report_manager = ReportManager(self.reports_dir)
+        self.ai_analyzer = AIIntelligenceAnalyzer()
         
         # Initialize plugins using discovery system
         self.plugins = self._init_plugins()
@@ -365,6 +367,36 @@ class DetectiveJoe:
             # Save intelligence state
             self.intelligence.save_state()
             
+            # Perform AI-powered analysis
+            ai_analysis = None
+            try:
+                # Convert artifacts to dict format for analysis
+                artifacts_dict = []
+                for artifact in artifacts:
+                    if hasattr(artifact, '__dict__'):
+                        artifacts_dict.append(vars(artifact))
+                    elif isinstance(artifact, dict):
+                        artifacts_dict.append(artifact)
+                
+                # Get raw plugin results
+                plugin_results_list = [result for result in results.values()]
+                
+                # Run AI analysis
+                ai_analysis = self.ai_analyzer.analyze_reconnaissance_results(
+                    artifacts_dict,
+                    plugin_results_list
+                )
+                
+                # Generate executive summary
+                ai_summary = self.ai_analyzer.generate_executive_summary(ai_analysis)
+                self.logger.info("AI-powered intelligence analysis completed")
+                
+                # Print AI summary to console
+                print("\n" + ai_summary + "\n")
+                
+            except Exception as e:
+                self.logger.warning(f"AI analysis failed: {e}")
+            
             # Process results
             investigation_result = {
                 "target": target,
@@ -375,7 +407,8 @@ class DetectiveJoe:
                 "plugin_results": results,
                 "artifacts": artifacts,
                 "chained_tasks": self.investigation_state["chained_tasks"],
-                "summary": self._generate_summary(results, artifacts)
+                "summary": self._generate_summary(results, artifacts),
+                "ai_analysis": ai_analysis
             }
             
             return investigation_result

@@ -1,0 +1,13 @@
+name: "sublist3r"
+version: "1.0"
+description: "Subdomain enumeration plugin using Sublist3r for discovering subdomains"
+tool_name: "sublist3r"
+required_tools: ["sublist3r"]
+categories: ["website", "organisation"]
+plugin_class: "Sublist3rPlugin"
+module_path: "sublist3r_plugin"
+artifacts:
+  produces: ["subdomains", "domains"]
+  consumes: ["domains"]
+chain_priority: 1
+tags: ["osint", "subdomains", "enumeration", "recon"]

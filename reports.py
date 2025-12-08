@@ -71,6 +71,70 @@ EXECUTIVE SUMMARY
                 content += f"{artifact_type.title()}: {count}\n"
             content += "\n"
         
+        # AI-Powered Analysis Section
+        ai_analysis = investigation_result.get('ai_analysis')
+        if ai_analysis:
+            content += "\n" + "=" * 70 + "\n"
+            content += "AI-POWERED INTELLIGENCE ANALYSIS\n"
+            content += "=" * 70 + "\n\n"
+            
+            # Risk Assessment
+            risk_level = ai_analysis.get('risk_level', 'UNKNOWN')
+            risk_score = ai_analysis.get('risk_score', 0)
+            content += f"OVERALL RISK LEVEL: {risk_level} (Score: {risk_score}/100)\n\n"
+            
+            # Key Findings
+            key_findings = ai_analysis.get('key_findings', [])
+            if key_findings:
+                content += "KEY FINDINGS:\n"
+                for finding in key_findings:
+                    content += f"  • {finding}\n"
+                content += "\n"
+            
+            # Vulnerabilities
+            vulnerabilities = ai_analysis.get('vulnerabilities', [])
+            if vulnerabilities:
+                content += f"IDENTIFIED VULNERABILITIES: {len(vulnerabilities)}\n"
+                for vuln in vulnerabilities:
+                    severity = vuln.get('severity', 'UNKNOWN')
+                    description = vuln.get('description', 'No description')
+                    content += f"  [{severity}] {description}\n"
+                content += "\n"
+            
+            # Attack Surface
+            attack_surface = ai_analysis.get('attack_surface', {})
+            content += "ATTACK SURFACE ANALYSIS:\n"
+            content += f"  • Subdomains: {attack_surface.get('subdomain_count', 0)}\n"
+            content += f"  • Open Ports: {attack_surface.get('exposed_port_count', 0)}\n"
+            content += f"  • Services: {attack_surface.get('service_count', 0)}\n"
+            content += f"  • Exposed Emails: {attack_surface.get('email_exposure', 0)}\n\n"
+            
+            # Attack Vectors
+            attack_vectors = attack_surface.get('attack_vectors', [])
+            if attack_vectors:
+                content += "POTENTIAL ATTACK VECTORS:\n"
+                for vector in attack_vectors:
+                    content += f"  • {vector}\n"
+                content += "\n"
+            
+            # MITRE ATT&CK
+            mitre_techniques = ai_analysis.get('mitre_techniques', [])
+            if mitre_techniques:
+                content += "MITRE ATT&CK TECHNIQUES OBSERVED:\n"
+                for technique in mitre_techniques:
+                    content += f"  • {technique}\n"
+                content += "\n"
+            
+            # Recommendations
+            recommendations = ai_analysis.get('recommendations', [])
+            if recommendations:
+                content += "TOP RECOMMENDATIONS:\n"
+                for rec in recommendations[:10]:  # Show top 10
+                    content += f"  • {rec}\n"
+                content += "\n"
+            
+            content += "=" * 70 + "\n\n"
+        
         # Plugin results
         plugin_results = investigation_result.get('plugin_results', {})
         for task_id, result in plugin_results.items():

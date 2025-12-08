@@ -1,0 +1,13 @@
+name: "whatweb"
+version: "1.0"
+description: "Web technology fingerprinting plugin using WhatWeb for identifying technologies"
+tool_name: "whatweb"
+required_tools: ["whatweb"]
+categories: ["website"]
+plugin_class: "WhatWebPlugin"
+module_path: "whatweb_plugin"
+artifacts:
+  produces: ["technologies", "web_servers", "frameworks", "cms"]
+  consumes: ["domains", "urls"]
+chain_priority: 2
+tags: ["web", "fingerprinting", "technology", "recon"]

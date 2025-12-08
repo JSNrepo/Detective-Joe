@@ -1,0 +1,13 @@
+name: "dnsrecon"
+version: "1.0"
+description: "DNS enumeration plugin using DNSRecon for comprehensive DNS reconnaissance"
+tool_name: "dnsrecon"
+required_tools: ["dnsrecon"]
+categories: ["website", "organisation", "ip_server"]
+plugin_class: "DNSReconPlugin"
+module_path: "dnsrecon_plugin"
+artifacts:
+  produces: ["dns_records", "subdomains", "nameservers", "mail_servers"]
+  consumes: ["domains"]
+chain_priority: 1
+tags: ["dns", "enumeration", "osint", "recon"]

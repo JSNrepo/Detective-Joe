@@ -1,0 +1,13 @@
+name: "sslscan"
+version: "1.0"
+description: "SSL/TLS security analysis plugin using SSLScan for certificate and cipher assessment"
+tool_name: "sslscan"
+required_tools: ["sslscan"]
+categories: ["website", "ip_server"]
+plugin_class: "SSLScanPlugin"
+module_path: "sslscan_plugin"
+artifacts:
+  produces: ["certificates", "ssl_vulnerabilities", "cipher_suites"]
+  consumes: ["domains", "ips"]
+chain_priority: 3
+tags: ["ssl", "tls", "security", "crypto", "vulnerability"]
