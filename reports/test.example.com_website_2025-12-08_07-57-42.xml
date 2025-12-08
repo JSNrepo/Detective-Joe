@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<DetectiveJoeReport version="1.5">
+  <Metadata>
+    <Target>test.example.com</Target>
+    <Category>website</Category>
+    <InvestigationType>Website Investigation</InvestigationType>
+    <Profile>demo</Profile>
+    <Timestamp>2025-12-08T07:57:42.513199</Timestamp>
+  </Metadata>
+  <Summary>
+    <TotalTasks>1</TotalTasks>
+    <SuccessfulTasks>1</SuccessfulTasks>
+    <SuccessRate>100.0%</SuccessRate>
+    <ExecutionTime>0.00s</ExecutionTime>
+    <ArtifactsFound>0</ArtifactsFound>
+  </Summary>
+  <AIAnalysis>
+    <RiskLevel>MINIMAL</RiskLevel>
+    <RiskScore>0</RiskScore>
+    <Vulnerabilities/>
+    <AttackSurface>
+      <SubdomainCount>0</SubdomainCount>
+      <ExposedPortCount>0</ExposedPortCount>
+      <ServiceCount>0</ServiceCount>
+      <EmailExposure>0</EmailExposure>
+    </AttackSurface>
+    <Recommendations>
+      <Recommendation priority="1">Monitor for new vulnerabilities in identified technologies</Recommendation>
+      <Recommendation priority="2">Regular security audits and penetration testing</Recommendation>
+      <Recommendation priority="3">Implement security headers (CSP, HSTS, X-Frame-Options)</Recommendation>
+    </Recommendations>
+  </AIAnalysis>
+  <PluginResults count="1">
+    <PluginResult id="demo_test.example.com_website_1765180662411">
+      <Plugin>demo</Plugin>
+      <Status>completed</Status>
+      <Duration>0.01s</Duration>
+    </PluginResult>
+  </PluginResults>
+</DetectiveJoeReport>

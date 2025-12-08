@@ -32,8 +32,8 @@ profiles:
       user_agent_rotation: false
     enabled_categories: ["website", "ip_server"]
     tools:
-      website: ["nmap"]
-      ip_server: ["nmap"]
+      website: ["nmap", "whois"]
+      ip_server: ["nmap", "sslscan"]
       
   standard:
     name: "Standard Scan"
@@ -49,9 +49,9 @@ profiles:
       user_agent_rotation: true
     enabled_categories: ["website", "organisation", "ip_server"]
     tools:
-      website: ["nmap", "theharvester"]
-      organisation: ["theharvester", "nmap"]
-      ip_server: ["nmap"]
+      website: ["nmap", "theharvester", "whois", "whatweb", "dnsrecon"]
+      organisation: ["theharvester", "whois", "dnsrecon"]
+      ip_server: ["nmap", "sslscan"]
       
   deep:
     name: "Deep Scan"
@@ -68,10 +68,10 @@ profiles:
       user_agent_rotation: true
     enabled_categories: ["website", "organisation", "people", "ip_server"]
     tools:
-      website: ["nmap", "theharvester"]
-      organisation: ["theharvester", "nmap"]
+      website: ["nmap", "theharvester", "sublist3r", "whatweb", "whois", "dnsrecon", "sslscan"]
+      organisation: ["theharvester", "whois", "dnsrecon", "sublist3r"]
       people: ["theharvester"]
-      ip_server: ["nmap"]
+      ip_server: ["nmap", "sslscan"]
       
   stealth:
     name: "Stealth Scan"

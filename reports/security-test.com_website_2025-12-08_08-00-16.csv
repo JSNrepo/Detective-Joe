@@ -1,0 +1,21 @@
+# Detective Joe v1.5 Investigation Export
+# Target,security-test.com
+# Category,website
+# Date,2025-12-08T08:00:16.253580
+# Profile,demo
+
+## RECOMMENDATIONS
+Priority,Recommendation
+1,Monitor for new vulnerabilities in identified technologies
+2,"Implement security headers (CSP, HSTS, X-Frame-Options)"
+3,Regular security audits and penetration testing
+
+## SUMMARY
+Metric,Value
+Total Tasks,1
+Successful Tasks,1
+Success Rate,100.0%
+Execution Time,0.00s
+Artifacts Found,0
+Risk Level,MINIMAL
+Risk Score,0/100
