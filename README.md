@@ -354,6 +354,18 @@ $ python3 detectivejoe.py -c website -t example.com -p standard
 [*] Processing 15 artifacts through intelligence engine
 [*] Performing artifact chaining with depth 2
 [*] Chained 3 additional tasks from discovered targets
+
+======================================================================
+AI-POWERED INTELLIGENCE ANALYSIS
+Powered by Google Gemini 2.5 Flash
+======================================================================
+
+OVERALL RISK LEVEL: HIGH (Score: 68/100)
+
+The target presents significant security concerns including outdated SSL/TLS 
+configurations and exposed administrative services. Immediate action required 
+to address critical vulnerabilities.
+
 [✓] Investigation completed successfully!
 [✓] TXT report saved: reports/example.com_website_2025-01-15_14-30-45.txt
 [✓] HTML report saved: reports/example.com_website_2025-01-15_14-30-45.html
@@ -366,6 +378,81 @@ SUMMARY:
   Artifacts found: 15
   Chained tasks: 3
 ```
+
+---
+
+## 🤖 AI-Powered Intelligence Features
+
+### Gemini 2.5 Flash Integration (FREE!)
+
+Detective Joe now includes intelligent analysis powered by Google's Gemini 2.5 Flash AI:
+
+**Quick Setup:**
+```bash
+# Get your free API key from: https://makersuite.google.com/app/apikey
+export GEMINI_API_KEY="your-api-key-here"
+
+# Run any scan - AI analysis is automatic!
+python3 detectivejoe.py -c website -t example.com
+```
+
+**AI-Enhanced Report Example:**
+```
+======================================================================
+AI-POWERED INTELLIGENCE ANALYSIS
+Powered by Google Gemini 2.5 Flash
+======================================================================
+
+OVERALL RISK LEVEL: HIGH (Score: 68/100)
+
+KEY FINDINGS:
+  • Discovered 12 subdomain(s)
+  • Identified 8 open port(s) including high-risk services
+  • Found 3 high/critical severity vulnerabilities
+  • Exposed administrative interfaces to public internet
+
+IDENTIFIED VULNERABILITIES: 5
+  [HIGH] Outdated SSL/TLS: SSLv3 enabled (CVE-2014-3566 POODLE)
+  [HIGH] Remote Desktop (3389) publicly accessible
+  [MEDIUM] WordPress 5.2 detected (outdated, known vulnerabilities)
+  [MEDIUM] Deprecated TLS 1.0/1.1 protocols enabled
+
+ATTACK SURFACE ANALYSIS:
+  • Subdomains: 12 (potential takeover candidates)
+  • Open Ports: 8 (including 3389, 445, 22)
+  • Services: 5 (SSH, RDP, SMB, HTTP, HTTPS)
+  • Exposed Emails: 3 (social engineering risk)
+
+POTENTIAL ATTACK VECTORS:
+  • Network service exploitation (RDP brute force)
+  • SSL/TLS downgrade attacks (POODLE, BEAST)
+  • Subdomain takeover opportunities
+  • WordPress vulnerabilities and plugins
+  • Social engineering via exposed contacts
+
+TOP RECOMMENDATIONS:
+  1. URGENT: Disable SSLv3, enable only TLS 1.2+
+  2. URGENT: Restrict RDP (3389) to trusted IPs only
+  3. HIGH: Update WordPress to latest version (6.4+)
+  4. MEDIUM: Implement Web Application Firewall (WAF)
+  5. MEDIUM: Review and secure/remove unused subdomains
+  6. Enable security headers (HSTS, CSP, X-Frame-Options)
+
+MITRE ATT&CK TECHNIQUES OBSERVED:
+  • T1590.001 - Gather Victim Network Information: Domain Properties
+  • T1046 - Network Service Scanning
+  • T1590.002 - Gather Victim Network Information: DNS
+======================================================================
+```
+
+**Benefits:**
+- 🎯 **Context-Aware Analysis**: AI understands relationships between findings
+- 🔍 **Smart Prioritization**: Recommendations ranked by actual risk and impact
+- 📝 **Professional Reports**: Stakeholder-ready summaries and technical details
+- 💡 **Actionable Insights**: Specific remediation steps, not generic advice
+- 🆓 **Completely Free**: Gemini 2.5 Flash has generous free tier limits
+
+**See [AI_INTEGRATION.md](AI_INTEGRATION.md) for complete setup guide.**
 
 ---
 
