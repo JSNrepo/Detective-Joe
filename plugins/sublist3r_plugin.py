@@ -42,7 +42,12 @@ class Sublist3rPlugin(PluginBase):
         Returns:
             Command string for sublist3r
         """
-        threads = kwargs.get("threads", 10)
+        # Validate and sanitize threads parameter
+        try:
+            threads = int(kwargs.get("threads", 10))
+            threads = max(1, min(threads, 50))  # Limit between 1 and 50
+        except (ValueError, TypeError):
+            threads = 10
         
         # Basic sublist3r command
         cmd = f"sublist3r -d {target} -t {threads} -n"

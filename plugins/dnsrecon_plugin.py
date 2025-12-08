@@ -45,8 +45,9 @@ class DNSReconPlugin(PluginBase):
         """
         scan_type = kwargs.get("type", "std")  # std, rvl, brt, srv, axfr, etc.
         
-        # Build dnsrecon command with JSON output
-        cmd = f"dnsrecon -d {target} -t {scan_type} --json /dev/stdout 2>/dev/null || dnsrecon -d {target} -t {scan_type}"
+        # Build dnsrecon command - try JSON output first, fallback to text
+        # Note: JSON output is parsed in Python, not relying on shell operators
+        cmd = f"dnsrecon -d {target} -t {scan_type} -j -"
         
         return cmd
     

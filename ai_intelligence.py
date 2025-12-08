@@ -122,7 +122,10 @@ class AIIntelligenceAnalyzer:
                 analysis["emails"].append(value)
             
             elif artifact_type == "port":
-                port_num = int(value) if str(value).isdigit() else 0
+                try:
+                    port_num = int(str(value)) if str(value).strip().isdigit() else 0
+                except (ValueError, TypeError):
+                    port_num = 0
                 analysis["open_ports"].append(port_num)
                 if port_num in self.vulnerability_patterns["open_ports_high_risk"]:
                     analysis["concerns"].append(f"High-risk port {port_num} is open")

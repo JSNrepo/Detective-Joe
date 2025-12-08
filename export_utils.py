@@ -243,7 +243,11 @@ class ExportManager:
                         ET.SubElement(result_elem, 'Error').text = result['error']
             
             # Pretty print XML
-            xml_string = minidom.parseString(ET.tostring(root)).toprettyxml(indent="  ")
+            try:
+                xml_string = minidom.parseString(ET.tostring(root)).toprettyxml(indent="  ")
+            except Exception as e:
+                self.logger.warning(f"Failed to pretty print XML, using basic format: {e}")
+                xml_string = ET.tostring(root, encoding='unicode')
             
             # Write to file
             with open(xml_filename, 'w', encoding='utf-8') as f:

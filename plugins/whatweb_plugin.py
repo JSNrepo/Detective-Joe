@@ -49,8 +49,9 @@ class WhatWebPlugin(PluginBase):
         if not target.startswith(('http://', 'https://')):
             target = f"http://{target}"
         
-        # Build whatweb command with JSON output for easier parsing
-        cmd = f"whatweb -a {aggression} --color=never --log-json=/dev/stdout {target}"
+        # Build whatweb command - output to stdout for cross-platform compatibility
+        # Note: This requires Unix-like systems. For Windows, temp file would be needed.
+        cmd = f"whatweb -a {aggression} --color=never --log-json=- {target}"
         
         return cmd
     
