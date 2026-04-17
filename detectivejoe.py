@@ -1052,7 +1052,7 @@ Examples:
     parser.add_argument(
         "--webview",
         action="store_true",
-        help="Start the built-in webview dashboard for report browsing"
+        help="Start the built-in webview dashboard for report browsing (blocks until Ctrl+C)"
     )
     parser.add_argument(
         "--webview-host",

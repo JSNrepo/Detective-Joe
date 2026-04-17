@@ -12,6 +12,11 @@ from typing import Dict, Any, List
 from urllib.parse import quote
 from .base import PluginBase
 
+DOMAIN_PATTERN = re.compile(
+    r'^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$'
+)
+DEFAULT_WEB_CHECK_URL = "https://web-check.xyz"
+
 
 class WebCheckPlugin(PluginBase):
     """Plugin for Web-Check integration."""
@@ -34,10 +39,12 @@ class WebCheckPlugin(PluginBase):
     def build_command(self, target: str, category: str, **kwargs) -> str:
         """
         Build command that emits structured Web-Check integration data.
+
+        Targets without scheme are normalized to https:// by default.
         """
-        base_url = os.environ.get("WEB_CHECK_BASE_URL", "https://web-check.xyz").strip().rstrip("/")
+        base_url = os.environ.get("WEB_CHECK_BASE_URL", DEFAULT_WEB_CHECK_URL).strip().rstrip("/")
         if not base_url:
-            base_url = "https://web-check.xyz"
+            base_url = DEFAULT_WEB_CHECK_URL
 
         normalized_target = target.strip()
         if not normalized_target.startswith(("http://", "https://")):
@@ -55,7 +62,8 @@ class WebCheckPlugin(PluginBase):
             ]
         }
 
-        code = f"import json; print(json.dumps({payload!r}))"
+        payload_json = json.dumps(payload)
+        code = f"print({payload_json!r})"
         return f"python3 -c {shlex.quote(code)}"
 
     def parse_output(self, output: str, target: str, category: str) -> Dict[str, Any]:
@@ -95,6 +103,4 @@ class WebCheckPlugin(PluginBase):
             normalized = normalized.split("://", 1)[1]
         normalized = normalized.split("/", 1)[0]
 
-        domain_pattern = r'^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$'
-        return re.match(domain_pattern, normalized) is not None
-
+        return DOMAIN_PATTERN.match(normalized) is not None

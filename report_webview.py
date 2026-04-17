@@ -6,6 +6,7 @@ Serve generated reports with a clean browser UI.
 
 import json
 import logging
+import heapq
 from html import escape
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -15,6 +16,7 @@ from urllib.parse import quote
 
 class ReportWebView:
     """Simple HTTP dashboard for browsing report files."""
+    MAX_INDEX_REPORTS = 200
 
     def __init__(self, reports_dir: Path, web_check_base_url: str = "https://web-check.xyz"):
         self.reports_dir = Path(reports_dir)
@@ -24,7 +26,11 @@ class ReportWebView:
     def _load_report_index(self) -> List[Dict[str, Any]]:
         """Load report metadata from JSON exports."""
         reports = []
-        json_reports = sorted(self.reports_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+        json_reports = heapq.nlargest(
+            self.MAX_INDEX_REPORTS,
+            self.reports_dir.glob("*.json"),
+            key=lambda p: p.stat().st_mtime
+        )
 
         for json_file in json_reports:
             try:
@@ -170,7 +176,15 @@ class ReportWebView:
 """
 
     def serve(self, host: str = "127.0.0.1", port: int = 8765) -> None:
-        """Start the webview server."""
+        """
+        Start the dashboard HTTP server.
+
+        Args:
+            host: Interface to bind (default 127.0.0.1).
+            port: TCP port for serving dashboard and report files.
+
+        The server runs until interrupted (Ctrl+C), then closes gracefully.
+        """
         webview = self
 
         class DashboardHandler(SimpleHTTPRequestHandler):
@@ -197,4 +211,3 @@ class ReportWebView:
             print("\n[*] Webview stopped.")
         finally:
             server.server_close()
-
