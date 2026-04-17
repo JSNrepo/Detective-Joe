@@ -89,6 +89,7 @@ try:
     from reports import ReportManager
     from ai_intelligence import AIIntelligenceAnalyzer
     from export_utils import ExportManager
+    from report_webview import ReportWebView
 except ImportError as e:
     print(f"Error: Failed to import required modules: {e}")
     print("Please ensure all framework components are in the same directory.")
@@ -979,6 +980,11 @@ EXECUTIVE SUMMARY
 
         return checks_ok
 
+    def launch_webview(self, host: str = "127.0.0.1", port: int = 8765) -> None:
+        """Launch browser-accessible webview dashboard for reports."""
+        viewer = ReportWebView(self.reports_dir)
+        viewer.serve(host=host, port=port)
+
 
 def create_argument_parser() -> argparse.ArgumentParser:
     """Create and configure argument parser for CLI interface."""
@@ -1043,6 +1049,22 @@ Examples:
         action="store_true",
         help="Run preflight checks for environment, profile tools, and AI configuration"
     )
+    parser.add_argument(
+        "--webview",
+        action="store_true",
+        help="Start the built-in webview dashboard for report browsing"
+    )
+    parser.add_argument(
+        "--webview-host",
+        default="127.0.0.1",
+        help="Host to bind webview dashboard (default: 127.0.0.1)"
+    )
+    parser.add_argument(
+        "--webview-port",
+        type=int,
+        default=8765,
+        help="Port to bind webview dashboard (default: 8765)"
+    )
     
     # Advanced options
     parser.add_argument(
@@ -1099,6 +1121,10 @@ async def main():
         elif args.doctor:
             is_ready = dj.run_preflight_check(args.category)
             sys.exit(0 if is_ready else 1)
+
+        elif args.webview:
+            dj.launch_webview(args.webview_host, args.webview_port)
+            sys.exit(0)
             
         elif args.category and args.target:
             # CLI mode

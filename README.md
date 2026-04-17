@@ -54,6 +54,7 @@ Detective Joe (**DJ**) v1.5 is a **next-generation automated reconnaissance fram
 - **SSLScan Plugin**: SSL/TLS security analysis and vulnerability detection
 - **DNSRecon Plugin**: Comprehensive DNS enumeration and zone transfer testing
 - **WHOIS Plugin**: Domain registration and ownership information gathering
+- **WebCheck Plugin**: Direct integration links for Web-Check Free web OSINT analysis
 - **Demo Plugin**: Testing mode without external dependencies
 
 ### AI-Powered Intelligence Analysis (New!)
@@ -331,6 +332,9 @@ python3 detectivejoe.py --list-plugins
 # Preflight check (recommended before non-demo scans)
 python3 detectivejoe.py --doctor
 python3 detectivejoe.py --doctor -c website
+
+# Launch built-in webview dashboard for clear report browsing
+python3 detectivejoe.py --webview
 ```
 
 CLI exit codes:
@@ -352,6 +356,35 @@ python3 detectivejoe.py --kill
 ### Interactive Mode (Enhanced)
 ```bash
 python3 detectivejoe.py --interactive
+```
+
+### 🌐 Built-in Webview Dashboard
+Use the built-in webview to browse generated reports and quickly open local exports (HTML/JSON/TXT/CSV/XML) from a single UI:
+
+```bash
+python3 detectivejoe.py --webview
+```
+
+Optional host/port overrides:
+
+```bash
+python3 detectivejoe.py --webview --webview-host 0.0.0.0 --webview-port 8765
+```
+
+### 🔗 Web-Check Free Integration
+Detective Joe now includes a `webcheck` plugin for website investigations.  
+It provides direct assessment links to Web-Check Free for deeper web OSINT workflows.
+
+By default it uses:
+
+```bash
+https://web-check.xyz
+```
+
+To point Detective Joe to your self-hosted Web-Check Free instance:
+
+```bash
+export WEB_CHECK_BASE_URL="https://your-webcheck-instance.example"
 ```
 
 Example CLI Session:

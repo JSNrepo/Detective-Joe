@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from plugins.base import PluginBase
 from plugins.nmap_plugin import NmapPlugin
 from plugins.theharvester_plugin import TheHarvesterPlugin
+from plugins.webcheck_plugin import WebCheckPlugin
 from async_worker import AsyncWorkerPool, Task, TaskStatus, PLUGIN_REGISTRY
 from detectivejoe import load_env_file, DetectiveJoe
 from gemini_service import GeminiService
@@ -154,6 +155,32 @@ class TestTheHarvesterPlugin(unittest.TestCase):
         self.assertTrue(self.plugin.validate_target("example.com", "website"))
         self.assertTrue(self.plugin.validate_target("test@example.com", "people"))
         self.assertFalse(self.plugin.validate_target("", "website"))
+
+
+class TestWebCheckPlugin(unittest.TestCase):
+    """Test cases for the WebCheck plugin."""
+    
+    def setUp(self):
+        self.plugin = WebCheckPlugin()
+    
+    def test_webcheck_plugin_properties(self):
+        """Test WebCheck plugin properties."""
+        self.assertEqual(self.plugin.tool_name, "web-check-free")
+        self.assertIn("website", self.plugin.categories)
+        self.assertEqual(self.plugin.required_tools, ["python3"])
+    
+    def test_command_building(self):
+        """Test WebCheck command building."""
+        cmd = self.plugin.build_command("example.com", "website")
+        self.assertIn("python3 -c", cmd)
+        self.assertIn("web-check.xyz", cmd)
+    
+    def test_target_validation(self):
+        """Test WebCheck target validation."""
+        self.assertTrue(self.plugin.validate_target("example.com", "website"))
+        self.assertTrue(self.plugin.validate_target("https://example.com", "website"))
+        self.assertFalse(self.plugin.validate_target("", "website"))
+        self.assertFalse(self.plugin.validate_target("bad target", "website"))
 
 
 class TestAsyncWorkerPool(unittest.TestCase):
@@ -397,6 +424,7 @@ def run_tests():
     suite.addTest(loader.loadTestsFromTestCase(TestPluginBase))
     suite.addTest(loader.loadTestsFromTestCase(TestNmapPlugin))
     suite.addTest(loader.loadTestsFromTestCase(TestTheHarvesterPlugin))
+    suite.addTest(loader.loadTestsFromTestCase(TestWebCheckPlugin))
     suite.addTest(loader.loadTestsFromTestCase(TestAsyncWorkerPool))
     suite.addTest(loader.loadTestsFromTestCase(TestEnvLoader))
     suite.addTest(loader.loadTestsFromTestCase(TestCliExitCodes))
