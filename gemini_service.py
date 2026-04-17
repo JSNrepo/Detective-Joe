@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Gemini AI Service for Detective Joe
-Handles all interactions with Google Gemini 2.5 Flash API for intelligent reconnaissance analysis.
-Uses the new google-genai SDK for Gemini 2.5 Flash support.
+Handles all interactions with Google Gemini Flash API for intelligent reconnaissance analysis.
+Uses the new google-genai SDK for Gemini Flash support.
 """
 
 import os
@@ -13,7 +13,7 @@ from typing import Dict, Any, List, Optional
 
 class GeminiService:
     """
-    Service class for interacting with Google Gemini 2.5 Flash API.
+    Service class for interacting with Google Gemini Flash API.
     Provides intelligent analysis of reconnaissance data.
     Uses the new google-genai SDK (not google-generativeai).
     """
@@ -26,7 +26,8 @@ class GeminiService:
             api_key: Google API key for Gemini. If None, tries to read from env.
         """
         self.logger = logging.getLogger("dj.gemini")
-        self.api_key = api_key or os.environ.get("GEMINI_API_KEY")
+        self.api_key = api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+        self.model_name = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
         self.client = None
         self.enabled = False
         
@@ -40,16 +41,15 @@ class GeminiService:
             
             if not self.api_key:
                 self.logger.warning("No Gemini API key found. AI features will use fallback analysis.")
-                self.logger.info("Set GEMINI_API_KEY environment variable to enable Gemini AI features.")
+                self.logger.info("Set GEMINI_API_KEY or GOOGLE_API_KEY environment variable to enable Gemini AI features.")
                 return
             
             # Initialize the new Gemini client
-            # The client automatically picks up the API key from the environment variable
-            os.environ['GEMINI_API_KEY'] = self.api_key
-            self.client = genai.Client()
+            # Initialize explicitly with api_key to avoid global env side effects
+            self.client = genai.Client(api_key=self.api_key)
             
             self.enabled = True
-            self.logger.info("Gemini 2.5 Flash AI initialized successfully")
+            self.logger.info(f"Gemini AI initialized successfully with model '{self.model_name}'")
             
         except ImportError:
             self.logger.warning("google-genai package not installed. Run: pip install google-genai")
@@ -86,7 +86,7 @@ class GeminiService:
             
             # Get AI analysis using new SDK
             response = self.client.models.generate_content(
-                model="gemini-2.5-flash",
+                model=self.model_name,
                 contents=prompt
             )
             
@@ -356,7 +356,7 @@ Please provide a 3-4 sentence executive summary that a security manager would un
             
             try:
                 response = self.client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model=self.model_name,
                     contents=prompt
                 )
                 return response.text.strip()

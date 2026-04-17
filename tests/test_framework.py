@@ -6,11 +6,13 @@ Basic test infrastructure for the framework components.
 
 import unittest
 import asyncio
+import argparse
 import tempfile
 import shutil
 from pathlib import Path
 import sys
 import os
+from unittest.mock import AsyncMock
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -19,6 +21,8 @@ from plugins.base import PluginBase
 from plugins.nmap_plugin import NmapPlugin
 from plugins.theharvester_plugin import TheHarvesterPlugin
 from async_worker import AsyncWorkerPool, Task, TaskStatus, PLUGIN_REGISTRY
+from detectivejoe import load_env_file, DetectiveJoe
+from gemini_service import GeminiService
 
 
 class MockPlugin(PluginBase):
@@ -56,7 +60,7 @@ class MockPlugin(PluginBase):
         }
 
 
-class TestPluginBase(unittest.TestCase):
+class TestPluginBase(unittest.IsolatedAsyncioTestCase):
     """Test cases for the plugin base class."""
     
     def setUp(self):
@@ -214,6 +218,114 @@ class TestAsyncWorkerPool(unittest.TestCase):
         self.assertIn("tasks_completed", stats)
 
 
+class TestEnvLoader(unittest.TestCase):
+    """Test cases for .env loading behavior."""
+
+    def setUp(self):
+        self.test_dir = Path(tempfile.mkdtemp())
+        self.original_dir = os.getcwd()
+        os.chdir(self.test_dir)
+        self.original_env = dict(os.environ)
+
+    def tearDown(self):
+        os.chdir(self.original_dir)
+        os.environ.clear()
+        os.environ.update(self.original_env)
+        shutil.rmtree(self.test_dir)
+
+    def test_load_env_file_sets_missing_variables(self):
+        """Loads variables from .env when not already present."""
+        env_content = """
+GEMINI_API_KEY=test-gemini-key
+GOOGLE_API_KEY=test-google-key
+"""
+        (self.test_dir / ".env").write_text(env_content)
+
+        loaded = load_env_file(".env")
+
+        self.assertEqual(loaded, 2)
+        self.assertEqual(os.environ.get("GEMINI_API_KEY"), "test-gemini-key")
+        self.assertEqual(os.environ.get("GOOGLE_API_KEY"), "test-google-key")
+
+    def test_load_env_file_does_not_override_existing_by_default(self):
+        """Existing environment values are preserved by default."""
+        os.environ["GEMINI_API_KEY"] = "existing-value"
+        (self.test_dir / ".env").write_text("GEMINI_API_KEY=from-file")
+
+        loaded = load_env_file(".env")
+
+        self.assertEqual(loaded, 0)
+        self.assertEqual(os.environ.get("GEMINI_API_KEY"), "existing-value")
+
+    def test_gemini_model_name_can_be_set_via_env(self):
+        """GeminiService should honor GEMINI_MODEL environment override."""
+        os.environ["GEMINI_MODEL"] = "gemini-flash-latest"
+        service = GeminiService(api_key="dummy-key")
+        self.assertEqual(service.model_name, "gemini-flash-latest")
+
+
+class TestCliExitCodes(unittest.IsolatedAsyncioTestCase):
+    """Test CLI exit code behavior."""
+
+    async def asyncSetUp(self):
+        self.test_dir = Path(tempfile.mkdtemp())
+        self.original_dir = os.getcwd()
+        os.chdir(self.test_dir)
+
+        for dir_name in ["reports", "cache", "state", "plugins"]:
+            (self.test_dir / dir_name).mkdir()
+
+        config_content = """
+profiles:
+  test:
+    name: "Test Profile"
+    timeout: 10
+    parallel_workers: 1
+    scan_depth: 1
+    aggressiveness: "low"
+    enable_chaining: false
+    enabled_categories: ["website"]
+    tools:
+      website: []
+default_profile: "test"
+"""
+        (self.test_dir / "profiles.yaml").write_text(config_content)
+        self.dj = DetectiveJoe(profile="test")
+
+    async def asyncTearDown(self):
+        await self.dj.worker_pool.stop()
+        os.chdir(self.original_dir)
+        shutil.rmtree(self.test_dir)
+
+    async def test_invalid_category_returns_2(self):
+        args = argparse.Namespace(category="invalid", target="example.com")
+        exit_code = await self.dj.run_cli_investigation(args)
+        self.assertEqual(exit_code, 2)
+
+    async def test_investigation_failure_returns_1(self):
+        self.dj.run_investigation_async = AsyncMock(return_value={"error": "failed"})
+        args = argparse.Namespace(category="website", target="example.com")
+        exit_code = await self.dj.run_cli_investigation(args)
+        self.assertEqual(exit_code, 1)
+
+    async def test_success_returns_0(self):
+        self.dj.run_investigation_async = AsyncMock(return_value={
+            "artifacts": [],
+            "summary": {
+                "total_tasks": 1,
+                "success_rate": 100.0,
+                "total_duration": 0.1,
+                "total_artifacts": 0,
+                "chained_tasks": 0
+            }
+        })
+        self.dj.save_report = lambda *_args, **_kwargs: {"txt": "reports/test.txt"}
+
+        args = argparse.Namespace(category="website", target="example.com")
+        exit_code = await self.dj.run_cli_investigation(args)
+        self.assertEqual(exit_code, 0)
+
+
 class TestIntegration(unittest.TestCase):
     """Integration tests for the framework."""
     
@@ -238,8 +350,6 @@ class TestIntegration(unittest.TestCase):
     def test_full_investigation_workflow(self):
         """Test complete investigation workflow."""
         async def run_test():
-            from detectivejoe import DetectiveJoe
-            
             # Create minimal config
             config_content = """
 profiles:
@@ -288,6 +398,8 @@ def run_tests():
     suite.addTest(loader.loadTestsFromTestCase(TestNmapPlugin))
     suite.addTest(loader.loadTestsFromTestCase(TestTheHarvesterPlugin))
     suite.addTest(loader.loadTestsFromTestCase(TestAsyncWorkerPool))
+    suite.addTest(loader.loadTestsFromTestCase(TestEnvLoader))
+    suite.addTest(loader.loadTestsFromTestCase(TestCliExitCodes))
     suite.addTest(loader.loadTestsFromTestCase(TestIntegration))
     
     # Run tests
