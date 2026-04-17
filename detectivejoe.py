@@ -371,8 +371,9 @@ class DetectiveJoe:
                 
                 error_msg = f"No available plugins for {category} investigation."
                 if missing_tools:
+                    unique_missing = sorted(set(missing_tools))
                     normalized_missing = {tool.lower() for tool in missing_tools}
-                    error_msg += f"\n\nMissing required tools: {', '.join(sorted(normalized_missing))}"
+                    error_msg += f"\n\nMissing required tools: {', '.join(unique_missing)}"
                     error_msg += "\n\nTo install missing tools:"
                     if 'nmap' in normalized_missing:
                         error_msg += "\n  • Ubuntu/Debian: sudo apt install nmap"
