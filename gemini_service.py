@@ -44,9 +44,7 @@ class GeminiService:
                 return
             
             # Initialize the new Gemini client
-            # Keep both common env var names in sync and initialize explicitly with api_key
-            os.environ['GEMINI_API_KEY'] = self.api_key
-            os.environ['GOOGLE_API_KEY'] = self.api_key
+            # Initialize explicitly with api_key to avoid global env side effects
             self.client = genai.Client(api_key=self.api_key)
             
             self.enabled = True

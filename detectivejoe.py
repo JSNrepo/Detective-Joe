@@ -899,7 +899,8 @@ EXECUTIVE SUMMARY
 
         # AI key check (optional warning)
         ai_key_present = bool(os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"))
-        print(f"[{'✓' if ai_key_present else '!'}] Gemini API key configured ({'yes' if ai_key_present else 'no, fallback mode'})")
+        ai_key_status = "yes" if ai_key_present else "no, fallback mode"
+        print(f"[{'✓' if ai_key_present else '!'}] Gemini API key configured ({ai_key_status})")
 
         # Plugin/tool checks per profile categories
         for profile_category in categories_to_check:
