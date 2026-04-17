@@ -1,0 +1,23 @@
+name: "webcheck"
+version: "1.0"
+description: "Web OSINT integration plugin for Web-Check Free"
+author: "Detective Joe Team"
+tool_name: "web-check-free"
+required_tools:
+  - "python3"
+categories:
+  - "website"
+plugin_class: "WebCheckPlugin"
+module_path: "webcheck_plugin"
+artifacts:
+  produces:
+    - "external_web_osint_links"
+  consumes:
+    - "domains"
+    - "urls"
+chain_priority: 3
+tags:
+  - "osint"
+  - "web"
+  - "dashboard"
+  - "webcheck"

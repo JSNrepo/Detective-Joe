@@ -12,6 +12,7 @@ from .whatweb_plugin import WhatWebPlugin
 from .sslscan_plugin import SSLScanPlugin
 from .dnsrecon_plugin import DNSReconPlugin
 from .whois_plugin import WhoisPlugin
+from .webcheck_plugin import WebCheckPlugin
 from .discovery import PluginDiscovery, PluginManifest
 
 __all__ = [
@@ -23,6 +24,7 @@ __all__ = [
     'SSLScanPlugin',
     'DNSReconPlugin',
     'WhoisPlugin',
+    'WebCheckPlugin',
     'PluginDiscovery',
     'PluginManifest'
 ]

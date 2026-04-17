@@ -32,7 +32,7 @@ profiles:
       user_agent_rotation: false
     enabled_categories: ["website", "ip_server"]
     tools:
-      website: ["nmap", "whois"]
+      website: ["nmap", "whois", "webcheck"]
       ip_server: ["nmap", "sslscan"]
       
   standard:
@@ -49,7 +49,7 @@ profiles:
       user_agent_rotation: true
     enabled_categories: ["website", "organisation", "ip_server"]
     tools:
-      website: ["nmap", "theharvester", "whois", "whatweb", "dnsrecon"]
+      website: ["nmap", "theharvester", "whois", "whatweb", "dnsrecon", "webcheck"]
       organisation: ["theharvester", "whois", "dnsrecon"]
       ip_server: ["nmap", "sslscan"]
       
@@ -68,7 +68,7 @@ profiles:
       user_agent_rotation: true
     enabled_categories: ["website", "organisation", "people", "ip_server"]
     tools:
-      website: ["nmap", "theharvester", "sublist3r", "whatweb", "whois", "dnsrecon", "sslscan"]
+      website: ["nmap", "theharvester", "sublist3r", "whatweb", "whois", "dnsrecon", "sslscan", "webcheck"]
       organisation: ["theharvester", "whois", "dnsrecon", "sublist3r"]
       people: ["theharvester"]
       ip_server: ["nmap", "sslscan"]
