@@ -95,8 +95,6 @@ class WebCheckPlugin(PluginBase):
         """Validate website target for Web-Check links."""
         if not target or not target.strip():
             return False
-        if " " in target.strip():
-            return False
 
         normalized = target.strip()
         if normalized.startswith(("http://", "https://")):

@@ -89,7 +89,7 @@ try:
     from reports import ReportManager
     from ai_intelligence import AIIntelligenceAnalyzer
     from export_utils import ExportManager
-    from report_webview import ReportWebView
+    from report_webview import ReportWebView, DEFAULT_WEB_CHECK_URL
 except ImportError as e:
     print(f"Error: Failed to import required modules: {e}")
     print("Please ensure all framework components are in the same directory.")
@@ -982,7 +982,7 @@ EXECUTIVE SUMMARY
 
     def launch_webview(self, host: str = "127.0.0.1", port: int = 8765) -> None:
         """Launch browser-accessible webview dashboard for reports."""
-        viewer = ReportWebView(self.reports_dir)
+        viewer = ReportWebView(self.reports_dir, os.environ.get("WEB_CHECK_BASE_URL", DEFAULT_WEB_CHECK_URL))
         viewer.serve(host=host, port=port)
 
 

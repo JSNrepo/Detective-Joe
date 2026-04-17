@@ -7,6 +7,7 @@ Serve generated reports with a clean browser UI.
 import json
 import logging
 import heapq
+import os
 from html import escape
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -14,13 +15,17 @@ from typing import Any, Dict, List
 from urllib.parse import quote
 
 
+DEFAULT_WEB_CHECK_URL = "https://web-check.xyz"
+
+
 class ReportWebView:
     """Simple HTTP dashboard for browsing report files."""
     MAX_INDEX_REPORTS = 200
 
-    def __init__(self, reports_dir: Path, web_check_base_url: str = "https://web-check.xyz"):
+    def __init__(self, reports_dir: Path, web_check_base_url: str = None):
         self.reports_dir = Path(reports_dir)
-        self.web_check_base_url = web_check_base_url.rstrip("/")
+        base_url = web_check_base_url or os.environ.get("WEB_CHECK_BASE_URL", DEFAULT_WEB_CHECK_URL)
+        self.web_check_base_url = base_url.rstrip("/")
         self.logger = logging.getLogger("dj.webview")
 
     def _load_report_index(self) -> List[Dict[str, Any]]:
