@@ -189,6 +189,8 @@ Detective Joe now includes **FREE** AI-powered analysis using Google Gemini 2.5 
 ```bash
 # Get your free API key from: https://makersuite.google.com/app/apikey
 export GEMINI_API_KEY="your-api-key-here"
+# Optional equivalent env var also supported:
+export GOOGLE_API_KEY="your-api-key-here"
 
 # Or add to your shell config for persistence
 echo 'export GEMINI_API_KEY="your-api-key-here"' >> ~/.bashrc
@@ -317,7 +319,15 @@ python3 detectivejoe.py -c website -t example.com -p stealth
 # List available profiles and plugins
 python3 detectivejoe.py --list-profiles
 python3 detectivejoe.py --list-plugins
+
+# Preflight check (recommended before non-demo scans)
+python3 detectivejoe.py --doctor
+python3 detectivejoe.py --doctor -c website
 ```
+
+CLI exit codes:
+- `0` = investigation succeeded
+- non-zero = validation/investigation failed (automation-friendly)
 
 ### State Management
 ```bash
@@ -391,6 +401,8 @@ Detective Joe now includes intelligent analysis powered by Google's Gemini 2.5 F
 ```bash
 # Get your free API key from: https://makersuite.google.com/app/apikey
 export GEMINI_API_KEY="your-api-key-here"
+# Optional equivalent env var:
+export GOOGLE_API_KEY="your-api-key-here"
 
 # Run any scan - AI analysis is automatic!
 python3 detectivejoe.py -c website -t example.com
@@ -779,6 +791,11 @@ cd tests
 python3 test_framework.py
 ```
 
+Run a preflight readiness check before full profile scans:
+```bash
+python3 detectivejoe.py --doctor
+```
+
 Tests cover:
 - Plugin base class functionality and async execution
 - Plugin auto-discovery and manifest loading
@@ -974,6 +991,7 @@ pip install -r requirements.txt
 ```bash
 # Check which tools are missing
 python3 detectivejoe.py --list-plugins
+python3 detectivejoe.py --doctor
 
 # Install missing tools on Kali Linux
 sudo apt update

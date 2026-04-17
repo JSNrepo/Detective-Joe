@@ -56,7 +56,7 @@ class MockPlugin(PluginBase):
         }
 
 
-class TestPluginBase(unittest.TestCase):
+class TestPluginBase(unittest.IsolatedAsyncioTestCase):
     """Test cases for the plugin base class."""
     
     def setUp(self):

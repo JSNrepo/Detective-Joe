@@ -26,7 +26,7 @@ class GeminiService:
             api_key: Google API key for Gemini. If None, tries to read from env.
         """
         self.logger = logging.getLogger("dj.gemini")
-        self.api_key = api_key or os.environ.get("GEMINI_API_KEY")
+        self.api_key = api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
         self.client = None
         self.enabled = False
         
@@ -40,13 +40,14 @@ class GeminiService:
             
             if not self.api_key:
                 self.logger.warning("No Gemini API key found. AI features will use fallback analysis.")
-                self.logger.info("Set GEMINI_API_KEY environment variable to enable Gemini AI features.")
+                self.logger.info("Set GEMINI_API_KEY or GOOGLE_API_KEY environment variable to enable Gemini AI features.")
                 return
             
             # Initialize the new Gemini client
-            # The client automatically picks up the API key from the environment variable
+            # Keep both common env var names in sync and initialize explicitly with api_key
             os.environ['GEMINI_API_KEY'] = self.api_key
-            self.client = genai.Client()
+            os.environ['GOOGLE_API_KEY'] = self.api_key
+            self.client = genai.Client(api_key=self.api_key)
             
             self.enabled = True
             self.logger.info("Gemini 2.5 Flash AI initialized successfully")

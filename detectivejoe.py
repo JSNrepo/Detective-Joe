@@ -324,12 +324,14 @@ class DetectiveJoe:
                 
                 error_msg = f"No available plugins for {category} investigation."
                 if missing_tools:
-                    error_msg += f"\n\nMissing required tools: {', '.join(set(missing_tools))}"
+                    unique_missing = sorted(set(missing_tools))
+                    normalized_missing = {tool.lower() for tool in unique_missing}
+                    error_msg += f"\n\nMissing required tools: {', '.join(unique_missing)}"
                     error_msg += "\n\nTo install missing tools:"
-                    if 'nmap' in missing_tools:
+                    if 'nmap' in normalized_missing:
                         error_msg += "\n  • Ubuntu/Debian: sudo apt install nmap"
                         error_msg += "\n  • macOS: brew install nmap"
-                    if 'theharvester' in missing_tools:
+                    if 'theharvester' in normalized_missing:
                         error_msg += "\n  • pip install theHarvester"
                         error_msg += "\n  • OR: git clone https://github.com/laramies/theHarvester"
                     error_msg += "\n\nAfter installation, run Detective Joe again."
@@ -700,7 +702,7 @@ EXECUTIVE SUMMARY
         artifacts = investigation_result.get("artifacts", [])
         return self.report_manager.txt_generator.generate(investigation_result, artifacts)
     
-    async def run_cli_investigation(self, args: argparse.Namespace) -> None:
+    async def run_cli_investigation(self, args: argparse.Namespace) -> int:
         """
         Run investigation from CLI arguments.
         
@@ -723,7 +725,7 @@ EXECUTIVE SUMMARY
             if not investigation_type:
                 print(f"Error: Invalid category '{args.category}'")
                 print("Valid categories: website, organisation, people, ip, server")
-                return
+                return 2
             
             print(f"[*] Starting {args.category} investigation for: {args.target}")
             print(f"[*] Using profile: {self.profile_name}")
@@ -733,7 +735,7 @@ EXECUTIVE SUMMARY
             
             if "error" in result:
                 print(f"[!] Investigation failed: {result['error']}")
-                return
+                return 1
             
             # Generate and save reports
             reports = self.save_report(result, result.get("artifacts", []))
@@ -752,12 +754,15 @@ EXECUTIVE SUMMARY
                 print(f"  Artifacts found: {summary.get('total_artifacts', 0)}")
                 if summary.get('chained_tasks', 0) > 0:
                     print(f"  Chained tasks: {summary.get('chained_tasks', 0)}")
+                return 0
             else:
                 print("[!] Investigation completed but failed to save reports")
+                return 1
                 
         except Exception as e:
             self.logger.error(f"CLI investigation failed: {e}")
             print(f"[!] Investigation failed: {e}")
+            return 1
         finally:
             await self.worker_pool.stop()
     
@@ -848,6 +853,71 @@ EXECUTIVE SUMMARY
             print(f"    Loaded: {info['loaded']}")
             print()
 
+    def run_preflight_check(self, category: Optional[str] = None) -> bool:
+        """Run environment and capability preflight checks."""
+        print("\nPreflight Check:")
+        print("=" * 50)
+
+        checks_ok = True
+        categories_to_check = []
+
+        if category:
+            category_map = {
+                "website": "website",
+                "organisation": "organisation",
+                "organization": "organisation",
+                "people": "people",
+                "ip": "ip_server",
+                "server": "ip_server",
+                "ip_server": "ip_server"
+            }
+            mapped = category_map.get(category.lower())
+            if not mapped:
+                print(f"[✗] Invalid category for preflight: {category}")
+                return False
+            categories_to_check = [mapped]
+        else:
+            categories_to_check = self.profile.get("enabled_categories", [])
+
+        # Directory write checks
+        for directory in [self.reports_dir, self.cache_dir, self.state_dir]:
+            writable = os.access(directory, os.W_OK)
+            print(f"[{'✓' if writable else '✗'}] Writable: {directory}")
+            checks_ok = checks_ok and writable
+
+        # AI key check (optional warning)
+        ai_key_present = bool(os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY"))
+        print(f"[{'✓' if ai_key_present else '!'}] Gemini API key configured ({'yes' if ai_key_present else 'no, fallback mode'})")
+
+        # Plugin/tool checks per profile categories
+        for profile_category in categories_to_check:
+            configured_tools = self.profile.get("tools", {}).get(profile_category, [])
+            if not configured_tools:
+                print(f"[✗] Category '{profile_category}': no tools configured in profile '{self.profile_name}'")
+                checks_ok = False
+                continue
+
+            print(f"[*] Category '{profile_category}' configured tools: {', '.join(configured_tools)}")
+            for tool_name in configured_tools:
+                plugin = self.plugins.get(tool_name)
+                if not plugin:
+                    print(f"  [✗] Plugin '{tool_name}' not loaded")
+                    checks_ok = False
+                    continue
+
+                missing_required = [t for t in plugin.required_tools if not shutil.which(t)]
+                available = plugin.is_available()
+                print(f"  [{'✓' if available else '✗'}] {tool_name} ({', '.join(plugin.required_tools)})")
+                if missing_required:
+                    checks_ok = False
+                    print(f"      Missing binaries: {', '.join(missing_required)}")
+
+        print("\nPreflight result: " + ("READY" if checks_ok else "NOT READY"))
+        if not checks_ok:
+            print("Run --list-plugins and install missing tools before full profile scans.")
+
+        return checks_ok
+
 
 def create_argument_parser() -> argparse.ArgumentParser:
     """Create and configure argument parser for CLI interface."""
@@ -862,6 +932,8 @@ Examples:
   %(prog)s --interactive
   %(prog)s --list-profiles
   %(prog)s --list-plugins
+  %(prog)s --doctor
+  %(prog)s --doctor -c website
         """
     )
     
@@ -904,6 +976,11 @@ Examples:
         "--list-plugins",
         action="store_true",
         help="List available plugins and their status"
+    )
+    parser.add_argument(
+        "--doctor",
+        action="store_true",
+        help="Run preflight checks for environment, profile tools, and AI configuration"
     )
     
     # Advanced options
@@ -953,10 +1030,15 @@ async def main():
             
         elif args.list_plugins:
             dj.list_plugins()
+
+        elif args.doctor:
+            is_ready = dj.run_preflight_check(args.category)
+            sys.exit(0 if is_ready else 1)
             
         elif args.category and args.target:
             # CLI mode
-            await dj.run_cli_investigation(args)
+            exit_code = await dj.run_cli_investigation(args)
+            sys.exit(exit_code)
             
         else:
             # Interactive mode (default)
