@@ -708,6 +708,9 @@ EXECUTIVE SUMMARY
         
         Args:
             args: Parsed command line arguments
+
+        Returns:
+            Exit code (0=success, 1=investigation failure, 2=invalid category input)
         """
         try:
             # Map category to investigation type
@@ -854,7 +857,16 @@ EXECUTIVE SUMMARY
             print()
 
     def run_preflight_check(self, category: Optional[str] = None) -> bool:
-        """Run environment and capability preflight checks."""
+        """
+        Run environment and capability preflight checks.
+
+        Args:
+            category: Optional CLI category filter (website/organisation/people/ip/server).
+                     If omitted, all enabled profile categories are checked.
+
+        Returns:
+            True if all required checks pass, False otherwise.
+        """
         print("\nPreflight Check:")
         print("=" * 50)
 
