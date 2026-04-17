@@ -324,9 +324,8 @@ class DetectiveJoe:
                 
                 error_msg = f"No available plugins for {category} investigation."
                 if missing_tools:
-                    unique_missing = sorted(set(missing_tools))
-                    normalized_missing = {tool.lower() for tool in unique_missing}
-                    error_msg += f"\n\nMissing required tools: {', '.join(unique_missing)}"
+                    normalized_missing = {tool.lower() for tool in set(missing_tools)}
+                    error_msg += f"\n\nMissing required tools: {', '.join(sorted(set(missing_tools)))}"
                     error_msg += "\n\nTo install missing tools:"
                     if 'nmap' in normalized_missing:
                         error_msg += "\n  • Ubuntu/Debian: sudo apt install nmap"
@@ -710,7 +709,8 @@ EXECUTIVE SUMMARY
             args: Parsed command line arguments
 
         Returns:
-            Exit code (0=success, 1=investigation failure, 2=invalid category input)
+            Exit code (0=success, 1=investigation failure, 2=invalid category input).
+            The caller should pass this value to sys.exit() for automation-friendly behavior.
         """
         try:
             # Map category to investigation type
