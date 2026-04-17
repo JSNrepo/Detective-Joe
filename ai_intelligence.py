@@ -2,7 +2,7 @@
 """
 AI-Powered Intelligence Analyzer for Detective Joe v1.5
 Advanced analysis and correlation of reconnaissance data using AI techniques.
-Enhanced with Google Gemini 2.5 Flash for intelligent insights.
+Enhanced with Google Gemini Flash for intelligent insights.
 """
 
 import re
@@ -23,7 +23,7 @@ class AIIntelligenceAnalyzer:
     """
     AI-powered intelligence analyzer for reconnaissance data.
     Provides automated threat assessment, vulnerability correlation, and actionable recommendations.
-    Now enhanced with Google Gemini 2.5 Flash AI for deeper insights.
+    Now enhanced with Google Gemini Flash AI for deeper insights.
     """
     
     def __init__(self):
@@ -65,7 +65,7 @@ class AIIntelligenceAnalyzer:
                                      plugin_results: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Perform comprehensive AI-powered analysis of reconnaissance results.
-        Now enhanced with Gemini 2.5 Flash AI for intelligent insights.
+        Now enhanced with Gemini Flash AI for intelligent insights.
         
         Args:
             artifacts: List of extracted artifacts from intelligence engine
@@ -89,7 +89,7 @@ class AIIntelligenceAnalyzer:
                 # Merge analyses (Gemini takes priority)
                 merged_analysis = self._merge_analyses(gemini_analysis, traditional_analysis)
                 merged_analysis["ai_powered"] = True
-                merged_analysis["ai_engine"] = "Gemini 2.5 Flash"
+                merged_analysis["ai_engine"] = "Gemini Flash"
                 
                 return merged_analysis
                 
@@ -499,7 +499,7 @@ class AIIntelligenceAnalyzer:
                     summary_lines = []
                     summary_lines.append("=" * 70)
                     summary_lines.append("AI-POWERED INTELLIGENCE ANALYSIS")
-                    summary_lines.append("Powered by Google Gemini 2.5 Flash")
+                    summary_lines.append("Powered by Google Gemini Flash")
                     summary_lines.append("=" * 70)
                     summary_lines.append("")
                     summary_lines.append(gemini_summary)

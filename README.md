@@ -57,7 +57,7 @@ Detective Joe (**DJ**) v1.5 is a **next-generation automated reconnaissance fram
 - **Demo Plugin**: Testing mode without external dependencies
 
 ### AI-Powered Intelligence Analysis (New!)
-- **Google Gemini 2.5 Flash Integration**: FREE AI-powered reconnaissance analysis
+- **Google Gemini Flash Integration**: AI-powered reconnaissance analysis (default model alias: `gemini-flash-latest`)
 - **Intelligent Risk Assessment**: Context-aware risk scoring and classification
 - **Advanced Vulnerability Detection**: AI-driven identification of security issues with CVE correlation
 - **Natural Language Insights**: Human-readable security summaries and recommendations
@@ -184,13 +184,21 @@ The setup script will:
 
 ### 🤖 AI Configuration (Recommended)
 
-Detective Joe now includes **FREE** AI-powered analysis using Google Gemini 2.5 Flash (Experimental)!
+Detective Joe includes AI-powered analysis using Google Gemini Flash models.
 
 ```bash
 # Get your free API key from: https://makersuite.google.com/app/apikey
 export GEMINI_API_KEY="your-api-key-here"
 # Optional equivalent env var also supported:
 export GOOGLE_API_KEY="your-api-key-here"
+
+# Or place keys in a .env file (auto-loaded at startup)
+cat > .env << 'EOF'
+GEMINI_API_KEY=your-api-key-here
+# Optional:
+# GOOGLE_API_KEY=your-api-key-here
+# GEMINI_MODEL=gemini-flash-latest
+EOF
 
 # Or add to your shell config for persistence
 echo 'export GEMINI_API_KEY="your-api-key-here"' >> ~/.bashrc
@@ -367,7 +375,7 @@ $ python3 detectivejoe.py -c website -t example.com -p standard
 
 ======================================================================
 AI-POWERED INTELLIGENCE ANALYSIS
-Powered by Google Gemini 2.5 Flash
+Powered by Google Gemini Flash
 ======================================================================
 
 OVERALL RISK LEVEL: HIGH (Score: 68/100)
@@ -393,9 +401,10 @@ SUMMARY:
 
 ## 🤖 AI-Powered Intelligence Features
 
-### Gemini 2.5 Flash Integration (FREE!)
+### Gemini Flash Integration
 
-Detective Joe now includes intelligent analysis powered by Google's Gemini 2.5 Flash AI:
+Detective Joe now includes intelligent analysis powered by Google's Gemini Flash AI.
+Default model alias: `gemini-flash-latest`.
 
 **Quick Setup:**
 ```bash
@@ -403,6 +412,14 @@ Detective Joe now includes intelligent analysis powered by Google's Gemini 2.5 F
 export GEMINI_API_KEY="your-api-key-here"
 # Optional equivalent env var:
 export GOOGLE_API_KEY="your-api-key-here"
+# Optional model alias override:
+export GEMINI_MODEL="gemini-flash-latest"
+
+# Or use a .env file (auto-loaded):
+cat > .env << 'EOF'
+GEMINI_API_KEY=your-api-key-here
+GEMINI_MODEL=gemini-flash-latest
+EOF
 
 # Run any scan - AI analysis is automatic!
 python3 detectivejoe.py -c website -t example.com
@@ -412,7 +429,7 @@ python3 detectivejoe.py -c website -t example.com
 ```
 ======================================================================
 AI-POWERED INTELLIGENCE ANALYSIS
-Powered by Google Gemini 2.5 Flash
+Powered by Google Gemini Flash
 ======================================================================
 
 OVERALL RISK LEVEL: HIGH (Score: 68/100)
@@ -462,7 +479,7 @@ MITRE ATT&CK TECHNIQUES OBSERVED:
 - 🔍 **Smart Prioritization**: Recommendations ranked by actual risk and impact
 - 📝 **Professional Reports**: Stakeholder-ready summaries and technical details
 - 💡 **Actionable Insights**: Specific remediation steps, not generic advice
-- 🆓 **Completely Free**: Gemini 2.5 Flash has generous free tier limits
+- 💸 **Cost depends on your Gemini plan**: usage and limits are managed by your Google AI account
 
 **See [AI_INTEGRATION.md](AI_INTEGRATION.md) for complete setup guide.**
 
