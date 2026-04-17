@@ -19,6 +19,7 @@ from plugins.base import PluginBase
 from plugins.nmap_plugin import NmapPlugin
 from plugins.theharvester_plugin import TheHarvesterPlugin
 from async_worker import AsyncWorkerPool, Task, TaskStatus, PLUGIN_REGISTRY
+from detectivejoe import load_env_file
 
 
 class MockPlugin(PluginBase):
@@ -214,6 +215,46 @@ class TestAsyncWorkerPool(unittest.TestCase):
         self.assertIn("tasks_completed", stats)
 
 
+class TestEnvLoader(unittest.TestCase):
+    """Test cases for .env loading behavior."""
+
+    def setUp(self):
+        self.test_dir = Path(tempfile.mkdtemp())
+        self.original_dir = os.getcwd()
+        os.chdir(self.test_dir)
+        self.original_env = dict(os.environ)
+
+    def tearDown(self):
+        os.chdir(self.original_dir)
+        os.environ.clear()
+        os.environ.update(self.original_env)
+        shutil.rmtree(self.test_dir)
+
+    def test_load_env_file_sets_missing_variables(self):
+        """Loads variables from .env when not already present."""
+        env_content = """
+GEMINI_API_KEY=test-gemini-key
+GOOGLE_API_KEY=test-google-key
+"""
+        (self.test_dir / ".env").write_text(env_content)
+
+        loaded = load_env_file(".env")
+
+        self.assertEqual(loaded, 2)
+        self.assertEqual(os.environ.get("GEMINI_API_KEY"), "test-gemini-key")
+        self.assertEqual(os.environ.get("GOOGLE_API_KEY"), "test-google-key")
+
+    def test_load_env_file_does_not_override_existing_by_default(self):
+        """Existing environment values are preserved by default."""
+        os.environ["GEMINI_API_KEY"] = "existing-value"
+        (self.test_dir / ".env").write_text("GEMINI_API_KEY=from-file")
+
+        loaded = load_env_file(".env")
+
+        self.assertEqual(loaded, 0)
+        self.assertEqual(os.environ.get("GEMINI_API_KEY"), "existing-value")
+
+
 class TestIntegration(unittest.TestCase):
     """Integration tests for the framework."""
     
@@ -288,6 +329,7 @@ def run_tests():
     suite.addTest(loader.loadTestsFromTestCase(TestNmapPlugin))
     suite.addTest(loader.loadTestsFromTestCase(TestTheHarvesterPlugin))
     suite.addTest(loader.loadTestsFromTestCase(TestAsyncWorkerPool))
+    suite.addTest(loader.loadTestsFromTestCase(TestEnvLoader))
     suite.addTest(loader.loadTestsFromTestCase(TestIntegration))
     
     # Run tests

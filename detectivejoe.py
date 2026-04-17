@@ -33,6 +33,53 @@ def check_virtual_environment():
         print("   with externally-managed-environment restrictions (PEP 668).")
         sys.exit(1)
 
+
+def load_env_file(env_file: str = ".env", override: bool = False) -> int:
+    """
+    Load environment variables from a .env-style file.
+
+    Args:
+        env_file: Path to the .env file to read.
+        override: When True, overwrite already-set environment variables.
+
+    Returns:
+        Number of variables loaded into os.environ.
+    """
+    env_path = Path(env_file)
+    if not env_path.exists() or not env_path.is_file():
+        return 0
+
+    loaded_count = 0
+    for raw_line in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        if line.startswith("export "):
+            line = line[7:].strip()
+
+        if "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+
+        if not key:
+            continue
+
+        if ((value.startswith('"') and value.endswith('"')) or
+            (value.startswith("'") and value.endswith("'"))):
+            value = value[1:-1]
+
+        if not override and key in os.environ:
+            continue
+
+        os.environ[key] = value
+        loaded_count += 1
+
+    return loaded_count
+
 # Import framework components
 try:
     from config import TOOLS, INVESTIGATION_TYPES, OPTIONAL_TOOLS, API_DEPENDENT_TOOLS
@@ -1020,6 +1067,10 @@ async def main():
     """Main entry point for Detective Joe v1.5."""
     parser = create_argument_parser()
     args = parser.parse_args()
+
+    loaded_vars = load_env_file()
+    if args.verbose and loaded_vars > 0:
+        print(f"[*] Loaded {loaded_vars} variables from .env")
     
     # Set up logging level
     if args.verbose:
