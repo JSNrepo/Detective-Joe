@@ -51,6 +51,7 @@ class ArtifactDatabase:
         self.artifacts: Dict[str, Artifact] = {}
         self.artifacts_by_type: Dict[str, Set[str]] = {}
         self.artifacts_by_source: Dict[str, Set[str]] = {}
+        self.artifacts_by_value: Dict[Tuple[str, str], Set[str]] = {}
         self.storage_path = storage_path
         self.logger = logging.getLogger("dj.intelligence.db")
         
@@ -78,6 +79,11 @@ class ArtifactDatabase:
             self.artifacts_by_source[artifact.source_plugin] = set()
         self.artifacts_by_source[artifact.source_plugin].add(artifact.id)
         
+        val_key = (artifact.type, artifact.value.lower())
+        if val_key not in self.artifacts_by_value:
+            self.artifacts_by_value[val_key] = set()
+        self.artifacts_by_value[val_key].add(artifact.id)
+
         return artifact.id
     
     def get_artifact(self, artifact_id: str) -> Optional[Artifact]:
@@ -99,13 +105,13 @@ class ArtifactDatabase:
         return [self.artifacts[aid] for aid in self.artifacts_by_source[source_plugin]]
     
     def find_similar_artifacts(self, artifact: Artifact, threshold: float = 0.8) -> List[Artifact]:
-        """Find similar artifacts based on value and type."""
+        """Find similar artifacts based on value and type using O(1) index lookup."""
         similar = []
-        for existing in self.artifacts.values():
-            if (existing.type == artifact.type and 
-                existing.value.lower() == artifact.value.lower() and
-                existing.id != artifact.id):
-                similar.append(existing)
+        val_key = (artifact.type, artifact.value.lower())
+        if val_key in self.artifacts_by_value:
+            for aid in self.artifacts_by_value[val_key]:
+                if aid != artifact.id:
+                    similar.append(self.artifacts[aid])
         return similar
     
     def save_to_disk(self) -> None:
@@ -137,6 +143,7 @@ class ArtifactDatabase:
             self.artifacts.clear()
             self.artifacts_by_type.clear()
             self.artifacts_by_source.clear()
+            self.artifacts_by_value.clear()
             
             for aid, artifact_data in data.get('artifacts', {}).items():
                 artifact = Artifact.from_dict(artifact_data)
