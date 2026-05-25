@@ -102,8 +102,15 @@ class PluginBase(ABC):
         Returns:
             True if target is valid, False otherwise
         """
-        # Default implementation - override in subclasses for specific validation
-        return bool(target and target.strip())
+        if not target or not target.strip():
+            return False
+
+        # Check for characters commonly used in command injection
+        invalid_chars = [';', '&', '|', '$', '`', '<', '>', '\\']
+        if any(char in target for char in invalid_chars):
+            return False
+
+        return True
     
     async def execute(self, target: str, category: str, timeout: Optional[int] = None, **kwargs) -> Dict[str, Any]:
         """
