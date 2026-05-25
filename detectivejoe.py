@@ -160,6 +160,7 @@ class DetectiveJoe:
         log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         
         logging.basicConfig(
+            force=True,
             level=log_level,
             format=log_format,
             handlers=[
