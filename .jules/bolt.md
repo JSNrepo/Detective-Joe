@@ -1,0 +1,3 @@
+## 2024-05-26 - Async worker pool wait loop optimization
+**Learning:** Found a busy wait loop (`while time.time() - start_time < wait_timeout: await asyncio.sleep(0.1)`) inside `AsyncWorkerPool.wait_for_tasks` in `async_worker.py`. This blocks execution for chunks of 0.1s and runs the `pending_tasks` list comprehension repeatedly, reducing CPU efficiency and delaying task completion slightly. By adding an `asyncio.Event` to `Task` that gets set when the task completes (or fails/timeouts) and using `asyncio.wait` / `asyncio.gather` with a timeout on these events, we can wait far more efficiently and precisely without polling.
+**Action:** Replace polling loops with `asyncio.Event`s when waiting for state changes in async systems.

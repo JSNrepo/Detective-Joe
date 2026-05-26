@@ -38,6 +38,7 @@ class Task:
     error: Optional[str] = None
     start_time: Optional[float] = None
     end_time: Optional[float] = None
+    _done_event: Optional[asyncio.Event] = None
     
     @property
     def duration(self) -> Optional[float]:
@@ -127,6 +128,8 @@ class AsyncWorkerPool:
         Returns:
             Task ID
         """
+        if task._done_event is None:
+            task._done_event = asyncio.Event()
         self.tasks[task.id] = task
         await self.task_queue.put(task)
         self.stats["tasks_submitted"] += 1
@@ -194,20 +197,21 @@ class AsyncWorkerPool:
             Dictionary of results keyed by task ID
         """
         wait_timeout = timeout or self.default_timeout
-        start_time = time.time()
         
-        while time.time() - start_time < wait_timeout:
-            # Check if all tasks are complete
-            pending_tasks = [
-                task_id for task_id in task_ids
-                if task_id in self.tasks and self.tasks[task_id].status in [TaskStatus.PENDING, TaskStatus.RUNNING]
-            ]
-            
-            if not pending_tasks:
-                break
-            
-            # Wait a bit before checking again
-            await asyncio.sleep(0.1)
+        # Collect events for tasks that are not yet complete
+        events_to_wait = []
+        for task_id in task_ids:
+            if task_id in self.tasks:
+                task = self.tasks[task_id]
+                if task.status in [TaskStatus.PENDING, TaskStatus.RUNNING] and task._done_event:
+                    events_to_wait.append(task._done_event.wait())
+
+        if events_to_wait:
+            try:
+                # Wait for all tasks to complete or timeout
+                await asyncio.wait_for(asyncio.gather(*events_to_wait), timeout=wait_timeout)
+            except asyncio.TimeoutError:
+                self.logger.warning(f"wait_for_tasks timed out after {wait_timeout} seconds")
         
         # Collect results
         results = {}
@@ -310,6 +314,9 @@ class AsyncWorkerPool:
                 if task.duration:
                     self.stats["total_execution_time"] += task.duration
                 
+                if task._done_event is not None:
+                    task._done_event.set()
+
                 self.logger.debug(
                     f"Task {task.id} completed with status {task.status.value} "
                     f"in {task.duration:.2f}s"
