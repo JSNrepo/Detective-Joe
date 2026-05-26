@@ -21,6 +21,7 @@ from plugins.base import PluginBase
 from plugins.nmap_plugin import NmapPlugin
 from plugins.theharvester_plugin import TheHarvesterPlugin
 from plugins.webcheck_plugin import WebCheckPlugin
+from plugins.whois_plugin import WhoisPlugin
 from async_worker import AsyncWorkerPool, Task, TaskStatus, PLUGIN_REGISTRY
 from detectivejoe import load_env_file, DetectiveJoe
 from gemini_service import GeminiService
@@ -181,6 +182,64 @@ class TestWebCheckPlugin(unittest.TestCase):
         self.assertTrue(self.plugin.validate_target("https://example.com", "website"))
         self.assertFalse(self.plugin.validate_target("", "website"))
         self.assertFalse(self.plugin.validate_target("bad target", "website"))
+
+
+class TestWhoisPlugin(unittest.TestCase):
+    """Test cases for the WHOIS plugin."""
+
+    def setUp(self):
+        self.plugin = WhoisPlugin()
+
+    def test_whois_plugin_properties(self):
+        """Test WHOIS plugin properties."""
+        self.assertEqual(self.plugin.tool_name, "whois")
+        self.assertIn("website", self.plugin.categories)
+        self.assertIn("organisation", self.plugin.categories)
+        self.assertEqual(self.plugin.required_tools, ["whois"])
+
+    def test_command_building(self):
+        """Test WHOIS command building."""
+        cmd = self.plugin.build_command("example.com", "website")
+        self.assertEqual(cmd, "whois example.com")
+
+        # Test protocol stripping
+        cmd = self.plugin.build_command("https://example.com/path", "website")
+        self.assertEqual(cmd, "whois example.com")
+
+    def test_parse_output(self):
+        """Test WHOIS output parsing."""
+        mock_output = """
+Domain Name: EXAMPLE.COM
+Registry Domain ID: 2336799_DOMAIN_COM-VRSN
+Registrar WHOIS Server: whois.iana.org
+Registrar URL: http://res.iana.org
+Updated Date: 2023-08-14T07:01:58Z
+Creation Date: 1995-08-14T04:00:00Z
+Registry Expiry Date: 2024-08-13T04:00:00Z
+Registrar: RESERVED-Internet Assigned Numbers Authority
+Registrar IANA ID: 376
+Registrar Abuse Contact Email:
+Registrar Abuse Contact Phone:
+Domain Status: clientDeleteProhibited https://icann.org/epp#clientDeleteProhibited
+Domain Status: clientTransferProhibited https://icann.org/epp#clientTransferProhibited
+Domain Status: clientUpdateProhibited https://icann.org/epp#clientUpdateProhibited
+Name Server: A.IANA-SERVERS.NET
+Name Server: B.IANA-SERVERS.NET
+DNSSEC: signedDelegation
+URL of the ICANN Whois Inaccuracy Complaint Form: https://www.icann.org/wicf/
+>>> Last update of whois database: 2024-05-18T06:50:52Z <<<
+        """
+        result = self.plugin.parse_output(mock_output, "example.com", "website")
+
+        self.assertEqual(result["target"], "example.com")
+        self.assertEqual(result["category"], "website")
+        self.assertEqual(result["registrar"], "RESERVED-Internet Assigned Numbers Authority")
+        self.assertIn("A.IANA-SERVERS.NET", result["nameservers"])
+        self.assertIn("B.IANA-SERVERS.NET", result["nameservers"])
+        self.assertEqual(result["creation_date"], "1995-08-14")
+        self.assertEqual(result["expiration_date"], "2024-08-13")
+        self.assertEqual(result["updated_date"], "2023-08-14")
+        self.assertTrue(result["domain_age_days"] > 0)
 
 
 class TestAsyncWorkerPool(unittest.TestCase):
@@ -425,6 +484,7 @@ def run_tests():
     suite.addTest(loader.loadTestsFromTestCase(TestNmapPlugin))
     suite.addTest(loader.loadTestsFromTestCase(TestTheHarvesterPlugin))
     suite.addTest(loader.loadTestsFromTestCase(TestWebCheckPlugin))
+    suite.addTest(loader.loadTestsFromTestCase(TestWhoisPlugin))
     suite.addTest(loader.loadTestsFromTestCase(TestAsyncWorkerPool))
     suite.addTest(loader.loadTestsFromTestCase(TestEnvLoader))
     suite.addTest(loader.loadTestsFromTestCase(TestCliExitCodes))
