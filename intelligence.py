@@ -101,9 +101,9 @@ class ArtifactDatabase:
     def find_similar_artifacts(self, artifact: Artifact, threshold: float = 0.8) -> List[Artifact]:
         """Find similar artifacts based on value and type."""
         similar = []
-        for existing in self.artifacts.values():
-            if (existing.type == artifact.type and 
-                existing.value.lower() == artifact.value.lower() and
+        # Optimization: Only search through artifacts of the same type
+        for existing in self.get_artifacts_by_type(artifact.type):
+            if (existing.value.lower() == artifact.value.lower() and
                 existing.id != artifact.id):
                 similar.append(existing)
         return similar
@@ -405,21 +405,23 @@ class IntelligenceEngine:
             "people_names": []
         }
         
-        # Map artifacts to chainable types
-        for artifact in self.artifact_db.artifacts.values():
-            if artifact.type == "domain":
-                chainable["domains"].append(artifact.value)
-                chainable["hostnames"].append(artifact.value)
-            elif artifact.type == "ip":
-                chainable["ips"].append(artifact.value)
-            elif artifact.type == "email":
-                chainable["emails"].append(artifact.value)
-                # Extract organization from email domain
-                if "@" in artifact.value:
-                    domain = artifact.value.split("@")[1]
-                    chainable["organizations"].append(domain)
-            elif artifact.type == "person":
-                chainable["people_names"].append(artifact.value)
+        # Optimization: Look up artifacts by type using the index rather than full DB scan
+        for artifact in self.artifact_db.get_artifacts_by_type("domain"):
+            chainable["domains"].append(artifact.value)
+            chainable["hostnames"].append(artifact.value)
+
+        for artifact in self.artifact_db.get_artifacts_by_type("ip"):
+            chainable["ips"].append(artifact.value)
+
+        for artifact in self.artifact_db.get_artifacts_by_type("email"):
+            chainable["emails"].append(artifact.value)
+            # Extract organization from email domain
+            if "@" in artifact.value:
+                domain = artifact.value.split("@")[1]
+                chainable["organizations"].append(domain)
+
+        for artifact in self.artifact_db.get_artifacts_by_type("person"):
+            chainable["people_names"].append(artifact.value)
         
         # Remove duplicates
         for key in chainable:
