@@ -11,9 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 import time
 
-# Global plugin registry for dynamic plugin loading
-PLUGIN_REGISTRY: Dict[str, Any] = {}
-
+from plugins.base import PluginBase
 
 class TaskStatus(Enum):
     """Task execution status."""
@@ -30,6 +28,7 @@ class Task:
     """Represents a reconnaissance task."""
     id: str
     plugin_name: str
+    plugin_instance: PluginBase
     target: str
     category: str
     kwargs: Dict[str, Any]
@@ -165,6 +164,7 @@ class AsyncWorkerPool:
             task = Task(
                 id=task_id,
                 plugin_name=plugin.name,
+                plugin_instance=plugin,
                 target=target,
                 category=category,
                 kwargs=kwargs
@@ -268,22 +268,8 @@ class AsyncWorkerPool:
             self.logger.debug(f"Worker {worker_name} executing task {task.id}")
             
             try:
-                # Import plugins here to avoid circular imports
-                from plugins import NmapPlugin, TheHarvesterPlugin
-
-                # Register plugins if not already registered
-                if not PLUGIN_REGISTRY:
-                    PLUGIN_REGISTRY["nmap"] = NmapPlugin
-                    PLUGIN_REGISTRY["theharvester"] = TheHarvesterPlugin
-
-                # Get plugin instance from registry
-                plugin_cls = PLUGIN_REGISTRY.get(task.plugin_name)
-                if not plugin_cls:
-                    raise ValueError(f"Unknown plugin: {task.plugin_name}")
-                plugin = plugin_cls()
-                
-                # Execute plugin
-                result = await plugin.execute(
+                # Execute plugin using the provided instance
+                result = await task.plugin_instance.execute(
                     task.target, 
                     task.category, 
                     timeout=self.default_timeout,

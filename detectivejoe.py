@@ -83,7 +83,7 @@ def load_env_file(env_file: str = ".env", override: bool = False) -> int:
 # Import framework components
 try:
     from config import TOOLS, INVESTIGATION_TYPES, OPTIONAL_TOOLS, API_DEPENDENT_TOOLS
-    from async_worker import AsyncWorkerPool, Task, TaskStatus, PLUGIN_REGISTRY
+    from async_worker import AsyncWorkerPool, Task, TaskStatus
     from plugins import PluginBase, NmapPlugin, TheHarvesterPlugin, PluginDiscovery
     from intelligence import IntelligenceEngine
     from reports import ReportManager

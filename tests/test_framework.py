@@ -21,7 +21,7 @@ from plugins.base import PluginBase
 from plugins.nmap_plugin import NmapPlugin
 from plugins.theharvester_plugin import TheHarvesterPlugin
 from plugins.webcheck_plugin import WebCheckPlugin
-from async_worker import AsyncWorkerPool, Task, TaskStatus, PLUGIN_REGISTRY
+from async_worker import AsyncWorkerPool, Task, TaskStatus
 from detectivejoe import load_env_file, DetectiveJoe
 from gemini_service import GeminiService
 
@@ -217,9 +217,8 @@ class TestAsyncWorkerPool(unittest.TestCase):
             await self.worker_pool.start()
             
             try:
-                # Create mock plugin and register it
+                # Create mock plugin
                 plugin = MockPlugin()
-                PLUGIN_REGISTRY["mock"] = MockPlugin
                 
                 # Execute plugin through worker pool
                 results = await self.worker_pool.execute_plugin_batch(
