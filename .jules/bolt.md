@@ -1,0 +1,3 @@
+## 2026-05-28 - Optimizing Artifact Database Deduplication
+**Learning:** The initial implementation of `find_similar_artifacts` in `ArtifactDatabase` used an O(n) scan to find duplicates. During batch ingestion of `k` artifacts into a database of `n` items, this created an O(k * n) bottleneck which degrades performance quadratically for large numbers of artifacts.
+**Action:** Always index data by lookup keys (in this case, type and lowercase value) to convert O(n) array scans into O(1) hash map lookups. Be sure to also maintain this index during add, load, and clear operations to keep it in sync.
