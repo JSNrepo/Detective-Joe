@@ -549,35 +549,6 @@ class DetectiveJoe:
         
         self.logger.info(f"Completed artifact chaining: {len(chained_results)} additional tasks")
         return chained_results
-        """Generate summary statistics from plugin results."""
-        total_tasks = len(results)
-        successful_tasks = len([r for r in results.values() if r["status"] == "completed"])
-        failed_tasks = len([r for r in results.values() if r["status"] == "failed"])
-        timeout_tasks = len([r for r in results.values() if r["status"] == "timeout"])
-        
-        total_duration = sum(r.get("duration", 0) for r in results.values() if r.get("duration"))
-        
-        summary = {
-            "total_tasks": total_tasks,
-            "successful_tasks": successful_tasks,
-            "failed_tasks": failed_tasks,
-            "timeout_tasks": timeout_tasks,
-            "success_rate": (successful_tasks / total_tasks * 100) if total_tasks > 0 else 0,
-            "total_duration": total_duration,
-            "average_duration": (total_duration / successful_tasks) if successful_tasks > 0 else 0,
-            "total_artifacts": len(artifacts) if artifacts else 0,
-            "chained_tasks": len(self.investigation_state.get("chained_tasks", []))
-        }
-        
-        # Add artifact summary if available
-        if artifacts:
-            artifact_summary = {}
-            for artifact in artifacts:
-                artifact_type = artifact.type if hasattr(artifact, 'type') else 'unknown'
-                artifact_summary[artifact_type] = artifact_summary.get(artifact_type, 0) + 1
-            summary["artifacts_by_type"] = artifact_summary
-        
-        return summary
     
     def generate_report_filename(self, target: str, category: str = None) -> str:
         """Generate a timestamped report filename."""
@@ -744,11 +715,6 @@ EXECUTIVE SUMMARY
         except Exception as e:
             self.logger.error(f"Error saving reports: {e}")
             return {}
-    
-    def generate_report_content(self, investigation_result: Dict[str, Any]) -> str:
-        """Generate formatted TXT report content (legacy compatibility)."""
-        artifacts = investigation_result.get("artifacts", [])
-        return self.report_manager.txt_generator.generate(investigation_result, artifacts)
     
     async def run_cli_investigation(self, args: argparse.Namespace) -> int:
         """
