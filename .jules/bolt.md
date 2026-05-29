@@ -1,0 +1,3 @@
+## 2025-03-01 - O(N^2) Anti-pattern in Artifact Deduplication
+**Learning:** Found a critical O(N^2) performance anti-pattern in the intelligence engine's deduplication logic. The `find_similar_artifacts` method was iterating over all artifacts (`self.artifacts.values()`) for every new artifact being processed, even though a pre-calculated index `self.artifacts_by_type` existed. This meant that as the artifact database grew, the deduplication step would become exponentially slower.
+**Action:** Always check if a class already maintains pre-calculated indexes or mappings (like dictionaries or sets grouped by type/category) before performing linear searches over the entire collection, especially inside loops that run frequently.
