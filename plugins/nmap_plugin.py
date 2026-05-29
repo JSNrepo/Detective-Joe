@@ -5,6 +5,7 @@ Network scanning plugin using Nmap for port discovery and service detection.
 """
 
 import re
+import shlex
 from typing import Dict, Any, List
 from .base import PluginBase
 
@@ -54,30 +55,30 @@ class NmapPlugin(PluginBase):
         # Category-specific scanning profiles
         if category == "website":
             if scan_type == "basic":
-                cmd += f" -sV -sC --top-ports 1000 {target}"
+                cmd += f" -sV -sC --top-ports 1000 {shlex.quote(target)}"
             else:
-                cmd += f" -sV -sC -A --top-ports 1000 {target}"
+                cmd += f" -sV -sC -A --top-ports 1000 {shlex.quote(target)}"
                 
         elif category == "organisation":
             if scan_type == "basic":
-                cmd += f" -sS --top-ports 100 {target}"
+                cmd += f" -sS --top-ports 100 {shlex.quote(target)}"
             else:
-                cmd += f" -sS -sV -O --top-ports 1000 {target}"
+                cmd += f" -sS -sV -O --top-ports 1000 {shlex.quote(target)}"
                 
         elif category == "ip_server":
             if scan_type == "basic":
-                cmd += f" -sS -sV --top-ports 1000 {target}"
+                cmd += f" -sS -sV --top-ports 1000 {shlex.quote(target)}"
             else:
-                cmd += f" -sS -sV -sC -A -O {target}"
+                cmd += f" -sS -sV -sC -A -O {shlex.quote(target)}"
         
         # Add custom ports if specified
         if 'ports' in kwargs:
-            ports = kwargs['ports']
+            ports = shlex.quote(str(kwargs['ports']))
             cmd = cmd.replace('--top-ports 1000', f'-p {ports}')
             cmd = cmd.replace('--top-ports 100', f'-p {ports}')
         
         # Add timing template
-        timing = kwargs.get('timing', 'T4')
+        timing = shlex.quote(str(kwargs.get('timing', 'T4')))
         cmd += f" -{timing}"
         
         # Additional flags
@@ -88,7 +89,7 @@ class NmapPlugin(PluginBase):
             cmd += " -Pn"
             
         if kwargs.get('script', None):
-            cmd += f" --script={kwargs['script']}"
+            cmd += f" --script={shlex.quote(str(kwargs['script']))}"
         
         return cmd
     
