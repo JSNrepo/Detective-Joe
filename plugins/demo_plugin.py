@@ -6,6 +6,7 @@ A simple demo plugin that works without external tools to demonstrate the framew
 
 from plugins.base import PluginBase
 from typing import Dict, Any, List
+import shlex
 
 
 class DemoPlugin(PluginBase):
@@ -28,14 +29,15 @@ class DemoPlugin(PluginBase):
     
     def build_command(self, target: str, category: str, **kwargs) -> str:
         """Build demo command based on category."""
+        target_safe = shlex.quote(target)
         if category == "website":
-            return f"curl -s -I --max-time 10 {target} 2>/dev/null || echo 'Demo: HTTP check for {target}'"
+            return f"curl -s -I --max-time 10 {target_safe} 2>/dev/null || echo 'Demo: HTTP check for '{target_safe}"
         elif category == "organisation":
-            return f"echo 'Demo: Organization info for {target}'"
+            return f"echo 'Demo: Organization info for '{target_safe}"
         elif category == "ip_server":
-            return f"echo 'Demo: Server info for {target}'"
+            return f"echo 'Demo: Server info for '{target_safe}"
         else:
-            return f"echo 'Demo: Basic check for {target}'"
+            return f"echo 'Demo: Basic check for '{target_safe}"
     
     def parse_output(self, output: str, target: str, category: str) -> Dict[str, Any]:
         """Parse demo output into structured format."""
