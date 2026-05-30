@@ -5,6 +5,7 @@ SSL/TLS security analysis using SSLScan tool.
 """
 
 import re
+import shlex
 from typing import Dict, Any, List
 from plugins.base import PluginBase
 
@@ -47,8 +48,11 @@ class SSLScanPlugin(PluginBase):
         # Remove protocol if present
         target = target.replace('https://', '').replace('http://', '')
         
+        safe_target = shlex.quote(target)
+        safe_port = shlex.quote(str(port))
+
         # Build sslscan command
-        cmd = f"sslscan --no-color {target}:{port}"
+        cmd = f"sslscan --no-color {safe_target}:{safe_port}"
         
         return cmd
     
