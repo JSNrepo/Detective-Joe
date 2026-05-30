@@ -6,6 +6,7 @@ DNS enumeration using DNSRecon tool.
 
 import re
 import json
+import shlex
 from typing import Dict, Any, List
 from plugins.base import PluginBase
 
@@ -44,10 +45,12 @@ class DNSReconPlugin(PluginBase):
             Command string for dnsrecon
         """
         scan_type = kwargs.get("type", "std")  # std, rvl, brt, srv, axfr, etc.
+        scan_type_safe = shlex.quote(str(scan_type))
+        target_safe = shlex.quote(target)
         
         # Build dnsrecon command - try JSON output first, fallback to text
         # Note: JSON output is parsed in Python, not relying on shell operators
-        cmd = f"dnsrecon -d {target} -t {scan_type} -j -"
+        cmd = f"dnsrecon -d {target_safe} -t {scan_type_safe} -j -"
         
         return cmd
     
