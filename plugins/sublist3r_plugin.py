@@ -5,6 +5,7 @@ Subdomain enumeration using Sublist3r tool.
 """
 
 import re
+import shlex
 from typing import Dict, Any, List
 from plugins.base import PluginBase
 
@@ -49,8 +50,11 @@ class Sublist3rPlugin(PluginBase):
         except (ValueError, TypeError):
             threads = 10
         
+        safe_target = shlex.quote(target)
+        safe_threads = shlex.quote(str(threads))
+
         # Basic sublist3r command
-        cmd = f"sublist3r -d {target} -t {threads} -n"
+        cmd = f"sublist3r -d {safe_target} -t {safe_threads} -n"
         
         return cmd
     

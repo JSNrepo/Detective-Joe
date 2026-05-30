@@ -1,0 +1,4 @@
+## 2026-05-30 - Command Injection in Plugin Architecture
+**Vulnerability:** Command Injection vulnerability existed because user inputs were directly interpolated into shell command strings within plugin `build_command` methods, which were then executed using `asyncio.create_subprocess_shell`.
+**Learning:** When using shell interpolation (especially with `create_subprocess_shell`), direct string formatting without escaping allows attackers to append arbitrary shell commands using metacharacters.
+**Prevention:** Always use `shlex.quote()` to sanitize user inputs before string interpolation into shell commands to ensure they are treated strictly as string literals, not evaluable commands.
