@@ -6,6 +6,7 @@ Web technology fingerprinting using WhatWeb tool.
 
 import re
 import json
+import shlex
 from typing import Dict, Any, List
 from plugins.base import PluginBase
 
@@ -43,11 +44,13 @@ class WhatWebPlugin(PluginBase):
         Returns:
             Command string for whatweb
         """
-        aggression = kwargs.get("aggression", 1)
+        aggression = shlex.quote(str(kwargs.get("aggression", 1)))
         
         # Ensure target has protocol
         if not target.startswith(('http://', 'https://')):
             target = f"http://{target}"
+
+        target = shlex.quote(target)
         
         # Build whatweb command - output to stdout for cross-platform compatibility
         # Note: This requires Unix-like systems. For Windows, temp file would be needed.
