@@ -78,12 +78,13 @@ class InvestigationState:
 class StateManager:
     """Manages investigation state persistence and recovery."""
     
-    def __init__(self, state_dir: Path):
+    def __init__(self, state_dir: Path, register_signal_handlers: bool = True):
         """
         Initialize state manager.
         
         Args:
             state_dir: Directory for state files
+            register_signal_handlers: Whether to register signal handlers for graceful shutdown
         """
         self.state_dir = Path(state_dir)
         self.state_dir.mkdir(exist_ok=True)
