@@ -4,6 +4,7 @@ SSLScan Plugin for Detective Joe v1.5
 SSL/TLS security analysis using SSLScan tool.
 """
 
+import shlex
 import re
 from typing import Dict, Any, List
 from plugins.base import PluginBase
@@ -42,13 +43,13 @@ class SSLScanPlugin(PluginBase):
         Returns:
             Command string for sslscan
         """
-        port = kwargs.get("port", 443)
+        port = str(kwargs.get("port", 443))
         
         # Remove protocol if present
         target = target.replace('https://', '').replace('http://', '')
         
         # Build sslscan command
-        cmd = f"sslscan --no-color {target}:{port}"
+        cmd = f"sslscan --no-color {shlex.quote(target)}:{shlex.quote(port)}"
         
         return cmd
     
