@@ -5,6 +5,7 @@ Domain registration and ownership information using WHOIS.
 """
 
 import re
+import shlex
 from typing import Dict, Any, List
 from datetime import datetime
 from plugins.base import PluginBase
@@ -47,7 +48,8 @@ class WhoisPlugin(PluginBase):
         target = target.replace('https://', '').replace('http://', '').split('/')[0]
         
         # Build whois command
-        cmd = f"whois {target}"
+        target_quoted = shlex.quote(str(target))
+        cmd = f"whois {target_quoted}"
         
         return cmd
     
