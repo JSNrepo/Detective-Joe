@@ -1,0 +1,4 @@
+## 2026-06-01 - Command Injection in Reconnaissance Plugins
+**Vulnerability:** Eight plugins (demo, dnsrecon, nmap, sslscan, sublist3r, theharvester, whatweb, whois) constructed shell commands using raw string interpolation for parameters like `target`, `ports`, and `scan_type`. The command strings were executed via `asyncio.create_subprocess_shell`.
+**Learning:** Interpolating user inputs directly into a shell command allows a malicious user to craft inputs with shell metacharacters (e.g. `;`, `|`, `&`) to execute arbitrary commands on the system.
+**Prevention:** Always use `shlex.quote()` to sanitize user inputs prior to string interpolation into shell commands, or avoid using shell execution entirely when possible.
