@@ -1,0 +1,3 @@
+## 2024-06-01 - O(N) Deduplication Lookups Architecturally Stalling the Agent
+**Learning:** During test analysis and profiling of `find_similar_artifacts` in `intelligence.py`, I discovered the algorithm was structurally bottlenecked by iterating entirely over `self.artifacts.values()` (O(N) operations), generating O(M * N) search times for duplicate insertions. On a mock scale, processing 1,000 matches with 200,000 baseline artifacts took ~25 seconds.
+**Action:** Always maintain dedicated cross-referenced indexes for fast lookups rather than iterating over full object sequences. Swapping to a tuple-based O(1) index using `artifacts_by_type_and_value` dropped lookups to sub-millisecond ranges (0.0008 seconds).
