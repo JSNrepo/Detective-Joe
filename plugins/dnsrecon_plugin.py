@@ -4,6 +4,7 @@ DNSRecon Plugin for Detective Joe v1.5
 DNS enumeration using DNSRecon tool.
 """
 
+import shlex
 import re
 import json
 from typing import Dict, Any, List
@@ -47,7 +48,7 @@ class DNSReconPlugin(PluginBase):
         
         # Build dnsrecon command - try JSON output first, fallback to text
         # Note: JSON output is parsed in Python, not relying on shell operators
-        cmd = f"dnsrecon -d {target} -t {scan_type} -j -"
+        cmd = f"dnsrecon -d {shlex.quote(str(target))} -t {shlex.quote(str(scan_type))} -j -"
         
         return cmd
     
