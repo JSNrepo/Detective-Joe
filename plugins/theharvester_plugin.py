@@ -5,6 +5,7 @@ Email harvesting and OSINT plugin using theHarvester for information gathering.
 """
 
 import re
+import shlex
 from typing import Dict, Any, List
 from .base import PluginBase
 
@@ -46,11 +47,12 @@ class TheHarvesterPlugin(PluginBase):
         Returns:
             theHarvester command string
         """
+        quoted_target = shlex.quote(str(target))
         # Base command
         cmd = "theHarvester"
         
         # Add domain/target
-        cmd += f" -d {target}"
+        cmd += f" -d {quoted_target}"
         
         # Source selection based on category and preferences
         sources = kwargs.get('sources', None)
@@ -64,11 +66,13 @@ class TheHarvesterPlugin(PluginBase):
             else:
                 sources = "all"
         
-        cmd += f" -b {sources}"
+        quoted_sources = shlex.quote(str(sources))
+        cmd += f" -b {quoted_sources}"
         
         # Add limit if specified
         limit = kwargs.get('limit', 500)
-        cmd += f" -l {limit}"
+        quoted_limit = shlex.quote(str(limit))
+        cmd += f" -l {quoted_limit}"
         
         # Additional options
         if kwargs.get('screenshot', False):
@@ -86,7 +90,8 @@ class TheHarvesterPlugin(PluginBase):
         # Output format
         output_format = kwargs.get('format', None)
         if output_format:
-            cmd += f" -f {output_format}"
+            quoted_format = shlex.quote(str(output_format))
+            cmd += f" -f {quoted_format}"
         
         return cmd
     

@@ -5,6 +5,7 @@ Network scanning plugin using Nmap for port discovery and service detection.
 """
 
 import re
+import shlex
 from typing import Dict, Any, List
 from .base import PluginBase
 
@@ -47,6 +48,7 @@ class NmapPlugin(PluginBase):
             Nmap command string
         """
         scan_type = kwargs.get('scan_type', 'default')
+        quoted_target = shlex.quote(str(target))
         
         # Base command
         cmd = "nmap"
@@ -54,31 +56,32 @@ class NmapPlugin(PluginBase):
         # Category-specific scanning profiles
         if category == "website":
             if scan_type == "basic":
-                cmd += f" -sV -sC --top-ports 1000 {target}"
+                cmd += f" -sV -sC --top-ports 1000 {quoted_target}"
             else:
-                cmd += f" -sV -sC -A --top-ports 1000 {target}"
+                cmd += f" -sV -sC -A --top-ports 1000 {quoted_target}"
                 
         elif category == "organisation":
             if scan_type == "basic":
-                cmd += f" -sS --top-ports 100 {target}"
+                cmd += f" -sS --top-ports 100 {quoted_target}"
             else:
-                cmd += f" -sS -sV -O --top-ports 1000 {target}"
+                cmd += f" -sS -sV -O --top-ports 1000 {quoted_target}"
                 
         elif category == "ip_server":
             if scan_type == "basic":
-                cmd += f" -sS -sV --top-ports 1000 {target}"
+                cmd += f" -sS -sV --top-ports 1000 {quoted_target}"
             else:
-                cmd += f" -sS -sV -sC -A -O {target}"
+                cmd += f" -sS -sV -sC -A -O {quoted_target}"
         
         # Add custom ports if specified
         if 'ports' in kwargs:
-            ports = kwargs['ports']
+            ports = shlex.quote(str(kwargs['ports']))
             cmd = cmd.replace('--top-ports 1000', f'-p {ports}')
             cmd = cmd.replace('--top-ports 100', f'-p {ports}')
         
         # Add timing template
-        timing = kwargs.get('timing', 'T4')
-        cmd += f" -{timing}"
+        timing = shlex.quote(str(kwargs.get('timing', 'T4')))
+        if timing.startswith('T'):
+            cmd += f" -{timing}"
         
         # Additional flags
         if kwargs.get('aggressive', False):
@@ -88,7 +91,8 @@ class NmapPlugin(PluginBase):
             cmd += " -Pn"
             
         if kwargs.get('script', None):
-            cmd += f" --script={kwargs['script']}"
+            script = shlex.quote(str(kwargs['script']))
+            cmd += f" --script={script}"
         
         return cmd
     
