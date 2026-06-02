@@ -4,6 +4,7 @@ WHOIS Plugin for Detective Joe v1.5
 Domain registration and ownership information using WHOIS.
 """
 
+import shlex
 import re
 from typing import Dict, Any, List
 from datetime import datetime
@@ -47,7 +48,7 @@ class WhoisPlugin(PluginBase):
         target = target.replace('https://', '').replace('http://', '').split('/')[0]
         
         # Build whois command
-        cmd = f"whois {target}"
+        cmd = f"whois {shlex.quote(str(target))}"
         
         return cmd
     
