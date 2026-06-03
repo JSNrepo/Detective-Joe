@@ -1,0 +1,1 @@
+## 2024-06-03 - [Command Injection Vulnerabilities]\n**Vulnerability:** [Command injection via string formatting in plugins]\n**Learning:** [User input variables were passed directly to a shell through f-strings, enabling command execution]\n**Prevention:** [Always use shlex.quote() to sanitize user input when passed to a shell string.]
