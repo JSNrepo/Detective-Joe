@@ -1,0 +1,4 @@
+## 2026-06-03 - [CRITICAL] Command Injection in Plugin Shell Execution
+**Vulnerability:** Found multiple plugins (`demo_plugin.py`, `dnsrecon_plugin.py`, `nmap_plugin.py`, `sslscan_plugin.py`, `sublist3r_plugin.py`, `theharvester_plugin.py`, `whatweb_plugin.py`, `whois_plugin.py`) lacking sanitization on target and argument inputs before interpolating them into shell commands executed via `asyncio.create_subprocess_shell`.
+**Learning:** This widespread pattern could allow arbitrary command execution by users supplying maliciously crafted targets or arguments (e.g., using semicolons or shell operators).
+**Prevention:** To prevent command injection vulnerabilities within the plugin architecture, always use `shlex.quote()` to sanitize user inputs (e.g., target, ports, arguments) before string interpolation into shell commands. Ensure `shlex.quote()` outputs are not wrapped in manual quotes.
