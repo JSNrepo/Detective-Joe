@@ -4,6 +4,7 @@ Detective Joe v1.5 - Demo Plugin
 A simple demo plugin that works without external tools to demonstrate the framework.
 """
 
+import shlex
 from plugins.base import PluginBase
 from typing import Dict, Any, List
 
@@ -29,13 +30,13 @@ class DemoPlugin(PluginBase):
     def build_command(self, target: str, category: str, **kwargs) -> str:
         """Build demo command based on category."""
         if category == "website":
-            return f"curl -s -I --max-time 10 {target} 2>/dev/null || echo 'Demo: HTTP check for {target}'"
+            return f"curl -s -I --max-time 10 {shlex.quote(target)} 2>/dev/null || echo Demo: HTTP check for {shlex.quote(target)}"
         elif category == "organisation":
-            return f"echo 'Demo: Organization info for {target}'"
+            return f"echo Demo: Organization info for {shlex.quote(target)}"
         elif category == "ip_server":
-            return f"echo 'Demo: Server info for {target}'"
+            return f"echo Demo: Server info for {shlex.quote(target)}"
         else:
-            return f"echo 'Demo: Basic check for {target}'"
+            return f"echo Demo: Basic check for {shlex.quote(target)}"
     
     def parse_output(self, output: str, target: str, category: str) -> Dict[str, Any]:
         """Parse demo output into structured format."""
