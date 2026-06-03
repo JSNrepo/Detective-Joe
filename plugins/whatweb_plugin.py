@@ -6,6 +6,7 @@ Web technology fingerprinting using WhatWeb tool.
 
 import re
 import json
+import shlex
 from typing import Dict, Any, List
 from plugins.base import PluginBase
 
@@ -51,7 +52,8 @@ class WhatWebPlugin(PluginBase):
         
         # Build whatweb command - output to stdout for cross-platform compatibility
         # Note: This requires Unix-like systems. For Windows, temp file would be needed.
-        cmd = f"whatweb -a {aggression} --color=never --log-json=- {target}"
+        quoted_target = shlex.quote(target)
+        cmd = f"whatweb -a {aggression} --color=never --log-json=- {quoted_target}"
         
         return cmd
     
