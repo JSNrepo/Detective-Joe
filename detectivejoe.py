@@ -85,6 +85,7 @@ try:
     from config import TOOLS, INVESTIGATION_TYPES, OPTIONAL_TOOLS, API_DEPENDENT_TOOLS
     from async_worker import AsyncWorkerPool, Task, TaskStatus, PLUGIN_REGISTRY
     from plugins import PluginBase, NmapPlugin, TheHarvesterPlugin, PluginDiscovery
+    from plugins.base import is_tool_available
     from intelligence import IntelligenceEngine
     from reports import ReportManager
     from ai_intelligence import AIIntelligenceAnalyzer
@@ -367,7 +368,7 @@ class DetectiveJoe:
                     if tool_name in self.plugins:
                         plugin = self.plugins[tool_name]
                         for required_tool in plugin.required_tools:
-                            if not shutil.which(required_tool):
+                            if not is_tool_available(required_tool):
                                 missing_tools.append(required_tool)
                 
                 error_msg = f"No available plugins for {category} investigation."
@@ -967,7 +968,7 @@ EXECUTIVE SUMMARY
                     checks_ok = False
                     continue
 
-                missing_required = [t for t in plugin.required_tools if not shutil.which(t)]
+                missing_required = [t for t in plugin.required_tools if not is_tool_available(t)]
                 available = plugin.is_available()
                 print(f"  [{'✓' if available else '✗'}] {tool_name} ({', '.join(plugin.required_tools)})")
                 if missing_required:

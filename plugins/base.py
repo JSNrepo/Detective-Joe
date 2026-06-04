@@ -7,9 +7,17 @@ Defines the base plugin interface that all reconnaissance plugins must implement
 import asyncio
 import subprocess
 import time
+import shutil
+import functools
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List
 import logging
+
+
+@functools.lru_cache(maxsize=None)
+def is_tool_available(tool_name: str) -> bool:
+    """Cache the result of shutil.which to improve performance."""
+    return bool(shutil.which(tool_name))
 
 
 class PluginBase(ABC):
@@ -88,8 +96,7 @@ class PluginBase(ABC):
         Returns:
             True if all required tools are available, False otherwise
         """
-        import shutil
-        return all(shutil.which(tool) for tool in self.required_tools)
+        return all(is_tool_available(tool) for tool in self.required_tools)
     
     def validate_target(self, target: str, category: str) -> bool:
         """
