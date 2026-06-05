@@ -5,8 +5,8 @@ Export investigation results to industry-standard formats (CSV, XML).
 """
 
 import csv
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
+import defusedxml.ElementTree as ET
+import defusedxml.minidom as minidom
 from pathlib import Path
 from typing import Dict, Any, List
 import logging

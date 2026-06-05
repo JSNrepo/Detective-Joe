@@ -36,3 +36,4 @@ google-genai>=0.2.0
 # - Kali Linux package manager
 # - apt install nmap theharvester
 # - Manual tool installation
+defusedxml>=0.7.1
