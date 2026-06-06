@@ -101,10 +101,18 @@ class ArtifactDatabase:
     def find_similar_artifacts(self, artifact: Artifact, threshold: float = 0.8) -> List[Artifact]:
         """Find similar artifacts based on value and type."""
         similar = []
-        for existing in self.artifacts.values():
-            if (existing.type == artifact.type and 
-                existing.value.lower() == artifact.value.lower() and
-                existing.id != artifact.id):
+        # Use artifacts_by_type index instead of iterating over all artifacts
+        artifact_lower_value = artifact.value.lower()
+
+        # Get artifact IDs of the same type, or empty list if none
+        candidate_ids = self.artifacts_by_type.get(artifact.type, set())
+
+        for aid in candidate_ids:
+            if aid == artifact.id:
+                continue
+
+            existing = self.artifacts[aid]
+            if existing.value.lower() == artifact_lower_value:
                 similar.append(existing)
         return similar
     
