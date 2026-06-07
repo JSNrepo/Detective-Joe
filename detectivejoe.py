@@ -513,6 +513,10 @@ class DetectiveJoe:
                 candidates = candidates[:2]  # Top 2 priorities
             # High aggressiveness uses all candidates
             
+
+            # Prepare all tasks for concurrent execution
+            tasks_to_run = []
+
             for plugin_name in candidates:
                 if plugin_name in self.plugins and self.plugins[plugin_name].is_available():
                     plugin = self.plugins[plugin_name]
@@ -521,31 +525,39 @@ class DetectiveJoe:
                     chain_targets = values[:5] if aggressiveness == "low" else values[:10]
                     
                     for target in chain_targets:
-                        try:
-                            # Execute chained plugin
-                            chained_result = await self.worker_pool.execute_plugin_batch(
-                                [plugin],
-                                target,
-                                category,
-                                timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
-                                **kwargs
-                            )
-                            
-                            # Add to chained results with unique key
-                            for task_id, result in chained_result.items():
-                                chained_key = f"chained_{plugin_name}_{target}_{len(chained_results)}"
-                                chained_results[chained_key] = result
-                                
-                                # Track chained task
-                                self.investigation_state["chained_tasks"].append({
-                                    "plugin": plugin_name,
-                                    "target": target,
-                                    "source_artifact_type": artifact_type,
-                                    "status": result.get("status", "unknown")
-                                })
+                        # Create coroutine for plugin execution
+                        coro = self.worker_pool.execute_plugin_batch(
+                            [plugin],
+                            target,
+                            category,
+                            timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
+                            **kwargs
+                        )
+                        tasks_to_run.append((plugin_name, target, artifact_type, coro))
+
+            if tasks_to_run:
+                self.logger.debug(f"Executing {len(tasks_to_run)} chained tasks concurrently for artifact type: {artifact_type}")
+                # Execute all chained tasks concurrently
+                results = await asyncio.gather(*(task[3] for task in tasks_to_run), return_exceptions=True)
+
+                # Process results
+                for (plugin_name, target, a_type, _), chained_result in zip(tasks_to_run, results):
+                    if isinstance(chained_result, Exception):
+                        self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {chained_result}")
+                        continue
+
+                    # Add to chained results with unique key
+                    for task_id, result in chained_result.items():
+                        chained_key = f"chained_{plugin_name}_{target}_{len(chained_results)}"
+                        chained_results[chained_key] = result
                         
-                        except Exception as e:
-                            self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {e}")
+                        # Track chained task
+                        self.investigation_state["chained_tasks"].append({
+                            "plugin": plugin_name,
+                            "target": target,
+                            "source_artifact_type": a_type,
+                            "status": result.get("status", "unknown")
+                        })
         
         self.logger.info(f"Completed artifact chaining: {len(chained_results)} additional tasks")
         return chained_results
