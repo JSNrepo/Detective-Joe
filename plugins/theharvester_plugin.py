@@ -46,11 +46,14 @@ class TheHarvesterPlugin(PluginBase):
         Returns:
             theHarvester command string
         """
+        import shlex
+        safe_target = shlex.quote(str(target))
+
         # Base command
         cmd = "theHarvester"
         
         # Add domain/target
-        cmd += f" -d {target}"
+        cmd += f" -d {safe_target}"
         
         # Source selection based on category and preferences
         sources = kwargs.get('sources', None)
@@ -64,11 +67,13 @@ class TheHarvesterPlugin(PluginBase):
             else:
                 sources = "all"
         
-        cmd += f" -b {sources}"
+        safe_sources = shlex.quote(str(sources))
+        cmd += f" -b {safe_sources}"
         
         # Add limit if specified
         limit = kwargs.get('limit', 500)
-        cmd += f" -l {limit}"
+        safe_limit = shlex.quote(str(limit))
+        cmd += f" -l {safe_limit}"
         
         # Additional options
         if kwargs.get('screenshot', False):

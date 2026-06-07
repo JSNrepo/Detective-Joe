@@ -43,15 +43,19 @@ class WhatWebPlugin(PluginBase):
         Returns:
             Command string for whatweb
         """
+        import shlex
         aggression = kwargs.get("aggression", 1)
         
         # Ensure target has protocol
         if not target.startswith(('http://', 'https://')):
             target = f"http://{target}"
+
+        safe_target = shlex.quote(str(target))
+        safe_aggression = shlex.quote(str(aggression))
         
         # Build whatweb command - output to stdout for cross-platform compatibility
         # Note: This requires Unix-like systems. For Windows, temp file would be needed.
-        cmd = f"whatweb -a {aggression} --color=never --log-json=- {target}"
+        cmd = f"whatweb -a {safe_aggression} --color=never --log-json=- {safe_target}"
         
         return cmd
     

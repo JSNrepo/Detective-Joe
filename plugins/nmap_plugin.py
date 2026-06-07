@@ -46,7 +46,9 @@ class NmapPlugin(PluginBase):
         Returns:
             Nmap command string
         """
+        import shlex
         scan_type = kwargs.get('scan_type', 'default')
+        safe_target = shlex.quote(str(target))
         
         # Base command
         cmd = "nmap"
@@ -54,25 +56,25 @@ class NmapPlugin(PluginBase):
         # Category-specific scanning profiles
         if category == "website":
             if scan_type == "basic":
-                cmd += f" -sV -sC --top-ports 1000 {target}"
+                cmd += f" -sV -sC --top-ports 1000 {safe_target}"
             else:
-                cmd += f" -sV -sC -A --top-ports 1000 {target}"
+                cmd += f" -sV -sC -A --top-ports 1000 {safe_target}"
                 
         elif category == "organisation":
             if scan_type == "basic":
-                cmd += f" -sS --top-ports 100 {target}"
+                cmd += f" -sS --top-ports 100 {safe_target}"
             else:
-                cmd += f" -sS -sV -O --top-ports 1000 {target}"
+                cmd += f" -sS -sV -O --top-ports 1000 {safe_target}"
                 
         elif category == "ip_server":
             if scan_type == "basic":
-                cmd += f" -sS -sV --top-ports 1000 {target}"
+                cmd += f" -sS -sV --top-ports 1000 {safe_target}"
             else:
-                cmd += f" -sS -sV -sC -A -O {target}"
+                cmd += f" -sS -sV -sC -A -O {safe_target}"
         
         # Add custom ports if specified
         if 'ports' in kwargs:
-            ports = kwargs['ports']
+            ports = shlex.quote(str(kwargs['ports']))
             cmd = cmd.replace('--top-ports 1000', f'-p {ports}')
             cmd = cmd.replace('--top-ports 100', f'-p {ports}')
         
