@@ -42,13 +42,17 @@ class SSLScanPlugin(PluginBase):
         Returns:
             Command string for sslscan
         """
+        import shlex
         port = kwargs.get("port", 443)
         
         # Remove protocol if present
         target = target.replace('https://', '').replace('http://', '')
         
+        safe_target = shlex.quote(str(target))
+        safe_port = shlex.quote(str(port))
+
         # Build sslscan command
-        cmd = f"sslscan --no-color {target}:{port}"
+        cmd = f"sslscan --no-color {safe_target}:{safe_port}"
         
         return cmd
     

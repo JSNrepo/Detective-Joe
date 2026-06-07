@@ -43,11 +43,14 @@ class WhoisPlugin(PluginBase):
         Returns:
             Command string for whois
         """
+        import shlex
         # Remove protocol if present
         target = target.replace('https://', '').replace('http://', '').split('/')[0]
         
+        safe_target = shlex.quote(str(target))
+
         # Build whois command
-        cmd = f"whois {target}"
+        cmd = f"whois {safe_target}"
         
         return cmd
     

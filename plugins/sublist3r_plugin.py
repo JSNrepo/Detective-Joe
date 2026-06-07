@@ -42,15 +42,19 @@ class Sublist3rPlugin(PluginBase):
         Returns:
             Command string for sublist3r
         """
+        import shlex
         # Validate and sanitize threads parameter
         try:
             threads = int(kwargs.get("threads", 10))
             threads = max(1, min(threads, 50))  # Limit between 1 and 50
         except (ValueError, TypeError):
             threads = 10
+
+        safe_target = shlex.quote(str(target))
+        safe_threads = shlex.quote(str(threads))
         
         # Basic sublist3r command
-        cmd = f"sublist3r -d {target} -t {threads} -n"
+        cmd = f"sublist3r -d {safe_target} -t {safe_threads} -n"
         
         return cmd
     
