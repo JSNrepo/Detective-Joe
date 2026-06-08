@@ -160,6 +160,7 @@ class AsyncWorkerPool:
         
         # Create tasks for each plugin
         tasks = []
+        coros = []
         for plugin in plugins:
             task_id = f"{plugin.name}_{target}_{category}_{int(time.time() * 1000)}"
             task = Task(
@@ -170,7 +171,10 @@ class AsyncWorkerPool:
                 kwargs=kwargs
             )
             tasks.append(task)
-            await self.submit_task(task)
+            coros.append(self.submit_task(task))
+
+        if coros:
+            await asyncio.gather(*coros)
         
         # Wait for all tasks to complete
         task_ids = [task.id for task in tasks]
