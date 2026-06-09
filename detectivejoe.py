@@ -520,16 +520,23 @@ class DetectiveJoe:
                     # Chain with discovered targets (limit to prevent explosion)
                     chain_targets = values[:5] if aggressiveness == "low" else values[:10]
                     
+                    coroutines = []
                     for target in chain_targets:
+                        coroutines.append(self.worker_pool.execute_plugin_batch(
+                            [plugin],
+                            target,
+                            category,
+                            timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
+                            **kwargs
+                        ))
+
+                    results = await asyncio.gather(*coroutines, return_exceptions=True)
+
+                    for i, target in enumerate(chain_targets):
                         try:
-                            # Execute chained plugin
-                            chained_result = await self.worker_pool.execute_plugin_batch(
-                                [plugin],
-                                target,
-                                category,
-                                timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
-                                **kwargs
-                            )
+                            chained_result = results[i]
+                            if isinstance(chained_result, Exception):
+                                raise chained_result
                             
                             # Add to chained results with unique key
                             for task_id, result in chained_result.items():
@@ -543,7 +550,6 @@ class DetectiveJoe:
                                     "source_artifact_type": artifact_type,
                                     "status": result.get("status", "unknown")
                                 })
-                        
                         except Exception as e:
                             self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {e}")
         
