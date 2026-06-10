@@ -5,6 +5,7 @@ Network scanning plugin using Nmap for port discovery and service detection.
 """
 
 import re
+import shlex
 from typing import Dict, Any, List
 from .base import PluginBase
 
@@ -46,7 +47,8 @@ class NmapPlugin(PluginBase):
         Returns:
             Nmap command string
         """
-        scan_type = kwargs.get('scan_type', 'default')
+        scan_type = str(kwargs.get('scan_type', 'default'))
+        safe_target = shlex.quote(str(target))
         
         # Base command
         cmd = "nmap"
@@ -54,31 +56,35 @@ class NmapPlugin(PluginBase):
         # Category-specific scanning profiles
         if category == "website":
             if scan_type == "basic":
-                cmd += f" -sV -sC --top-ports 1000 {target}"
+                cmd += f" -sV -sC --top-ports 1000 {safe_target}"
             else:
-                cmd += f" -sV -sC -A --top-ports 1000 {target}"
+                cmd += f" -sV -sC -A --top-ports 1000 {safe_target}"
                 
         elif category == "organisation":
             if scan_type == "basic":
-                cmd += f" -sS --top-ports 100 {target}"
+                cmd += f" -sS --top-ports 100 {safe_target}"
             else:
-                cmd += f" -sS -sV -O --top-ports 1000 {target}"
+                cmd += f" -sS -sV -O --top-ports 1000 {safe_target}"
                 
         elif category == "ip_server":
             if scan_type == "basic":
-                cmd += f" -sS -sV --top-ports 1000 {target}"
+                cmd += f" -sS -sV --top-ports 1000 {safe_target}"
             else:
-                cmd += f" -sS -sV -sC -A -O {target}"
+                cmd += f" -sS -sV -sC -A -O {safe_target}"
         
         # Add custom ports if specified
         if 'ports' in kwargs:
-            ports = kwargs['ports']
-            cmd = cmd.replace('--top-ports 1000', f'-p {ports}')
-            cmd = cmd.replace('--top-ports 100', f'-p {ports}')
+            ports = str(kwargs['ports'])
+            # Basic validation for ports (digits, commas, dashes)
+            if re.match(r'^[\d,\-]+$', ports):
+                cmd = cmd.replace('--top-ports 1000', f'-p {ports}')
+                cmd = cmd.replace('--top-ports 100', f'-p {ports}')
         
         # Add timing template
-        timing = kwargs.get('timing', 'T4')
-        cmd += f" -{timing}"
+        timing = str(kwargs.get('timing', 'T4'))
+        # Validate timing template (T0-T5)
+        if timing in ('T0', 'T1', 'T2', 'T3', 'T4', 'T5'):
+            cmd += f" -{timing}"
         
         # Additional flags
         if kwargs.get('aggressive', False):
@@ -88,7 +94,8 @@ class NmapPlugin(PluginBase):
             cmd += " -Pn"
             
         if kwargs.get('script', None):
-            cmd += f" --script={kwargs['script']}"
+            safe_script = shlex.quote(str(kwargs['script']))
+            cmd += f" --script={safe_script}"
         
         return cmd
     
