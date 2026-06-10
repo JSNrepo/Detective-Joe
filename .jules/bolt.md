@@ -1,0 +1,3 @@
+## 2026-06-10 - Concurrency in AsyncWorkerPool chaining
+**Learning:** Sequentially awaiting plugin batches in a loop prevents the `AsyncWorkerPool` from fully utilizing concurrent workers for chained tasks, creating a performance bottleneck when processing multiple chained targets.
+**Action:** When chaining multiple artifact targets to an async execution pool, construct a list of coroutines and use `asyncio.gather()` to dispatch them concurrently rather than awaiting each one sequentially in the `for` loop.
