@@ -432,7 +432,8 @@ class AnonymityLayer:
         elif self.use_proxy:
             try:
                 config = self.get_request_config()
-                response = requests.get('http://httpbin.org/ip', **config)
+                req_timeout = config.pop('timeout', 30)
+                response = requests.get('http://httpbin.org/ip', timeout=req_timeout, **config)
                 if response.status_code == 200:
                     return response.json().get('origin')
             except Exception as e:
