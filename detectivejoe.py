@@ -498,6 +498,10 @@ class DetectiveJoe:
         
         self.logger.info(f"Performing artifact chaining with depth {max_depth}")
         
+        # Gather coroutines for concurrent execution
+        coroutines = []
+        task_metadata = []
+
         # Find plugins that can consume these artifacts
         for artifact_type, values in chainable.items():
             if not values:
@@ -521,31 +525,39 @@ class DetectiveJoe:
                     chain_targets = values[:5] if aggressiveness == "low" else values[:10]
                     
                     for target in chain_targets:
-                        try:
-                            # Execute chained plugin
-                            chained_result = await self.worker_pool.execute_plugin_batch(
-                                [plugin],
-                                target,
-                                category,
-                                timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
-                                **kwargs
-                            )
-                            
-                            # Add to chained results with unique key
-                            for task_id, result in chained_result.items():
-                                chained_key = f"chained_{plugin_name}_{target}_{len(chained_results)}"
-                                chained_results[chained_key] = result
-                                
-                                # Track chained task
-                                self.investigation_state["chained_tasks"].append({
-                                    "plugin": plugin_name,
-                                    "target": target,
-                                    "source_artifact_type": artifact_type,
-                                    "status": result.get("status", "unknown")
-                                })
+                        coro = self.worker_pool.execute_plugin_batch(
+                            [plugin],
+                            target,
+                            category,
+                            timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
+                            **kwargs
+                        )
+                        coroutines.append(coro)
+                        task_metadata.append((plugin_name, target, artifact_type))
                         
-                        except Exception as e:
-                            self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {e}")
+        if coroutines:
+            # Execute all chained tasks concurrently
+            results_list = await asyncio.gather(*coroutines, return_exceptions=True)
+
+            for result, meta in zip(results_list, task_metadata):
+                plugin_name, target, artifact_type = meta
+
+                if isinstance(result, Exception):
+                    self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {result}")
+                    continue
+
+                # Add to chained results with unique key
+                for task_id, task_result in result.items():
+                    chained_key = f"chained_{plugin_name}_{target}_{len(chained_results)}"
+                    chained_results[chained_key] = task_result
+
+                    # Track chained task
+                    self.investigation_state["chained_tasks"].append({
+                        "plugin": plugin_name,
+                        "target": target,
+                        "source_artifact_type": artifact_type,
+                        "status": task_result.get("status", "unknown")
+                    })
         
         self.logger.info(f"Completed artifact chaining: {len(chained_results)} additional tasks")
         return chained_results
