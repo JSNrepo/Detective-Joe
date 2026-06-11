@@ -520,32 +520,40 @@ class DetectiveJoe:
                     # Chain with discovered targets (limit to prevent explosion)
                     chain_targets = values[:5] if aggressiveness == "low" else values[:10]
                     
-                    for target in chain_targets:
+                    # ⚡ Bolt Optimization: Use asyncio.gather to execute chain targets concurrently
+                    # instead of awaiting each one sequentially.
+                    async def run_chained_task(target):
                         try:
                             # Execute chained plugin
-                            chained_result = await self.worker_pool.execute_plugin_batch(
+                            return plugin_name, target, await self.worker_pool.execute_plugin_batch(
                                 [plugin],
                                 target,
                                 category,
                                 timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
                                 **kwargs
                             )
-                            
-                            # Add to chained results with unique key
-                            for task_id, result in chained_result.items():
-                                chained_key = f"chained_{plugin_name}_{target}_{len(chained_results)}"
-                                chained_results[chained_key] = result
-                                
-                                # Track chained task
-                                self.investigation_state["chained_tasks"].append({
-                                    "plugin": plugin_name,
-                                    "target": target,
-                                    "source_artifact_type": artifact_type,
-                                    "status": result.get("status", "unknown")
-                                })
-                        
                         except Exception as e:
                             self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {e}")
+                            return plugin_name, target, None
+
+                    coroutines = [run_chained_task(target) for target in chain_targets]
+                    batch_results = await asyncio.gather(*coroutines)
+
+                    for p_name, t, chained_result in batch_results:
+                        if chained_result is None:
+                            continue
+                        # Add to chained results with unique key
+                        for task_id, result in chained_result.items():
+                            chained_key = f"chained_{p_name}_{t}_{len(chained_results)}"
+                            chained_results[chained_key] = result
+
+                            # Track chained task
+                            self.investigation_state["chained_tasks"].append({
+                                "plugin": p_name,
+                                "target": t,
+                                "source_artifact_type": artifact_type,
+                                "status": result.get("status", "unknown")
+                            })
         
         self.logger.info(f"Completed artifact chaining: {len(chained_results)} additional tasks")
         return chained_results
