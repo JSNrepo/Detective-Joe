@@ -1,0 +1,3 @@
+## 2026-06-11 - [Concurrent Artifact Chaining in Async Worker Pool]
+**Learning:** Sequential awaits (`await self.worker_pool.execute_plugin_batch()`) within a loop inside `_perform_artifact_chaining` caused unnecessary bottlenecks, extending the total execution time to the sum of all individual target investigation times. Using an AsyncWorkerPool implies concurrent readiness, but it doesn't automatically parallelize looped awaits at the caller level.
+**Action:** Always map loop iterations to a list of coroutines and execute them concurrently using `asyncio.gather(*coroutines)` to ensure execution time is bounded by the longest task rather than the sum of all tasks.
