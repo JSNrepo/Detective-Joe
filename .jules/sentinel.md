@@ -1,0 +1,4 @@
+## 2026-05-25 - Fix Bandit B113 request_without_timeout
+**Vulnerability:** A `requests.get` call in `anonymity.py` passed its configuration including the timeout using unpacked kwargs (`**config`), which triggered a Bandit `B113: request_without_timeout` vulnerability.
+**Learning:** Bandit static analysis is unable to infer timeout parameters when they are implicitly unpacked from a dictionary. Implicit timeouts can lead to the false positive B113 warnings.
+**Prevention:** Always explicitly define the `timeout` parameter as a keyword argument (e.g., `timeout=config.pop('timeout', 30)`) when using the `requests` library to avoid linter warnings and prevent potential hanging processes.
