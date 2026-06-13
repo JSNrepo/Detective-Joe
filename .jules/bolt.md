@@ -1,0 +1,3 @@
+## 2026-06-13 - [Batch Task Submission Delay in AsyncWorkerPool]
+**Learning:** Awaiting `self.submit_task(task)` sequentially inside a loop in `execute_plugin_batch` blocks the event loop slightly for each task submitted. When submitting large batches of plugins concurrently, this leads to an unnecessary delay during the setup phase before any tasks actually begin executing.
+**Action:** Always use `asyncio.gather(*submit_coros, return_exceptions=True)` when batch submitting multiple tasks to an asynchronous queue to allow submissions to run concurrently and prevent event loop blocking. Iterate through results to manually handle exceptions without halting the batch.

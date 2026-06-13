@@ -160,6 +160,7 @@ class AsyncWorkerPool:
         
         # Create tasks for each plugin
         tasks = []
+        submit_coros = []
         for plugin in plugins:
             task_id = f"{plugin.name}_{target}_{category}_{int(time.time() * 1000)}"
             task = Task(
@@ -170,10 +171,20 @@ class AsyncWorkerPool:
                 kwargs=kwargs
             )
             tasks.append(task)
-            await self.submit_task(task)
+            # Optimize: submit tasks concurrently rather than awaiting sequentially
+            submit_coros.append(self.submit_task(task))
+
+        # Execute submissions concurrently
+        submit_results = await asyncio.gather(*submit_coros, return_exceptions=True)
         
-        # Wait for all tasks to complete
-        task_ids = [task.id for task in tasks]
+        # Wait for successfully submitted tasks to complete
+        task_ids = []
+        for task, res in zip(tasks, submit_results):
+            if isinstance(res, Exception):
+                self.logger.error(f"Error submitting task {task.id}: {res}")
+            else:
+                task_ids.append(task.id)
+
         results = await self.wait_for_tasks(task_ids, timeout)
         
         return results
