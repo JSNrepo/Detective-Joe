@@ -29,13 +29,17 @@ class DemoPlugin(PluginBase):
     def build_command(self, target: str, category: str, **kwargs) -> str:
         """Build demo command based on category."""
         if category == "website":
-            return f"curl -s -I --max-time 10 {target} 2>/dev/null || echo 'Demo: HTTP check for {target}'"
+            import shlex
+            return f"curl -s -I --max-time 10 {shlex.quote(str(target))} 2>/dev/null || echo 'Demo: HTTP check for {shlex.quote(str(target))}'"
         elif category == "organisation":
-            return f"echo 'Demo: Organization info for {target}'"
+            import shlex
+            return f"echo 'Demo: Organization info for {shlex.quote(str(target))}'"
         elif category == "ip_server":
-            return f"echo 'Demo: Server info for {target}'"
+            import shlex
+            return f"echo 'Demo: Server info for {shlex.quote(str(target))}'"
         else:
-            return f"echo 'Demo: Basic check for {target}'"
+            import shlex
+            return f"echo 'Demo: Basic check for {shlex.quote(str(target))}'"
     
     def parse_output(self, output: str, target: str, category: str) -> Dict[str, Any]:
         """Parse demo output into structured format."""
