@@ -1,0 +1,3 @@
+## 2026-06-14 - Sequential await Bottleneck in AsyncWorkerPool
+**Learning:** In `_perform_artifact_chaining` inside `detectivejoe.py`, the code used a sequential `await` inside a nested loop when dispatching chained tasks to the `AsyncWorkerPool`. This serialized the execution of concurrent plugins, effectively removing the benefits of having an async pool and underutilizing the workers.
+**Action:** Always construct a list of coroutines and execute them concurrently with `asyncio.gather(*coroutines, return_exceptions=True)` instead of awaiting sequentially within loops when dispatching multiple independent tasks to a worker pool.
