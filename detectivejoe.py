@@ -498,6 +498,9 @@ class DetectiveJoe:
         
         self.logger.info(f"Performing artifact chaining with depth {max_depth}")
         
+        # Create a list to hold coroutines and metadata for concurrent execution
+        chaining_tasks = []
+
         # Find plugins that can consume these artifacts
         for artifact_type, values in chainable.items():
             if not values:
@@ -521,34 +524,41 @@ class DetectiveJoe:
                     chain_targets = values[:5] if aggressiveness == "low" else values[:10]
                     
                     for target in chain_targets:
-                        try:
-                            # Execute chained plugin
-                            chained_result = await self.worker_pool.execute_plugin_batch(
-                                [plugin],
-                                target,
-                                category,
-                                timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
-                                **kwargs
-                            )
-                            
-                            # Add to chained results with unique key
-                            for task_id, result in chained_result.items():
-                                chained_key = f"chained_{plugin_name}_{target}_{len(chained_results)}"
-                                chained_results[chained_key] = result
-                                
-                                # Track chained task
-                                self.investigation_state["chained_tasks"].append({
-                                    "plugin": plugin_name,
-                                    "target": target,
-                                    "source_artifact_type": artifact_type,
-                                    "status": result.get("status", "unknown")
-                                })
+                        coroutine = self.worker_pool.execute_plugin_batch(
+                            [plugin],
+                            target,
+                            category,
+                            timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
+                            **kwargs
+                        )
+                        chaining_tasks.append((coroutine, plugin_name, target, artifact_type))
+
+        if chaining_tasks:
+            coroutines = [task[0] for task in chaining_tasks]
+            results_list = await asyncio.gather(*coroutines, return_exceptions=True)
+
+            for i, result_obj in enumerate(results_list):
+                _, plugin_name, target, artifact_type = chaining_tasks[i]
+                if isinstance(result_obj, Exception):
+                    self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {result_obj}")
+                else:
+                    # result_obj is a dict of results (chained_result)
+                    for task_id, result in result_obj.items():
+                        chained_key = f"chained_{plugin_name}_{target}_{len(chained_results)}"
+                        chained_results[chained_key] = result
                         
-                        except Exception as e:
-                            self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {e}")
+                        # Track chained task
+                        self.investigation_state["chained_tasks"].append({
+                            "plugin": plugin_name,
+                            "target": target,
+                            "source_artifact_type": artifact_type,
+                            "status": result.get("status", "unknown")
+                        })
         
         self.logger.info(f"Completed artifact chaining: {len(chained_results)} additional tasks")
         return chained_results
+
+    def _generate_summary(self, results: Dict[str, Dict[str, Any]], artifacts: List[Dict[str, Any]]) -> Dict[str, Any]:
         """Generate summary statistics from plugin results."""
         total_tasks = len(results)
         successful_tasks = len([r for r in results.values() if r["status"] == "completed"])
