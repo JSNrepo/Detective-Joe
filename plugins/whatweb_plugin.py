@@ -51,7 +51,8 @@ class WhatWebPlugin(PluginBase):
         
         # Build whatweb command - output to stdout for cross-platform compatibility
         # Note: This requires Unix-like systems. For Windows, temp file would be needed.
-        cmd = f"whatweb -a {aggression} --color=never --log-json=- {target}"
+        import shlex
+        cmd = f"whatweb -a {shlex.quote(str(aggression))} --color=never --log-json=- {shlex.quote(str(target))}"
         
         return cmd
     

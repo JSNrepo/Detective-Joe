@@ -48,7 +48,8 @@ class SSLScanPlugin(PluginBase):
         target = target.replace('https://', '').replace('http://', '')
         
         # Build sslscan command
-        cmd = f"sslscan --no-color {target}:{port}"
+        import shlex
+        cmd = f"sslscan --no-color {shlex.quote(str(target))}:{shlex.quote(str(port))}"
         
         return cmd
     

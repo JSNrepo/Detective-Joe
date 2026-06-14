@@ -47,7 +47,8 @@ class WhoisPlugin(PluginBase):
         target = target.replace('https://', '').replace('http://', '').split('/')[0]
         
         # Build whois command
-        cmd = f"whois {target}"
+        import shlex
+        cmd = f"whois {shlex.quote(str(target))}"
         
         return cmd
     

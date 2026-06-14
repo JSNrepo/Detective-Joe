@@ -50,7 +50,8 @@ class Sublist3rPlugin(PluginBase):
             threads = 10
         
         # Basic sublist3r command
-        cmd = f"sublist3r -d {target} -t {threads} -n"
+        import shlex
+        cmd = f"sublist3r -d {shlex.quote(str(target))} -t {threads} -n"
         
         return cmd
     
