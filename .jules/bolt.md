@@ -1,0 +1,4 @@
+## 2026-06-15 - Concurrent artifact chaining optimization
+**Learning:** In the `_perform_artifact_chaining` method, iterating over targets and sequentially awaiting `self.worker_pool.execute_plugin_batch` blocks the execution pipeline unnecessarily and defeats the purpose of having an `AsyncWorkerPool`. The async pool's advantages aren't fully utilized when we force tasks to run one-by-one in a loop.
+
+**Action:** Whenever invoking methods that use the `AsyncWorkerPool` inside a loop, group the coroutines into a list and use `asyncio.gather(*coroutines, return_exceptions=True)` to execute them concurrently instead of sequentially. Ensure manual handling of exceptions by passing `return_exceptions=True` so one failure doesn't abort the entire batch.
