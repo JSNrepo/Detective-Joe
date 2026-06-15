@@ -520,16 +520,25 @@ class DetectiveJoe:
                     # Chain with discovered targets (limit to prevent explosion)
                     chain_targets = values[:5] if aggressiveness == "low" else values[:10]
                     
+                    # Execute all targets concurrently
+                    coroutines = []
                     for target in chain_targets:
-                        try:
-                            # Execute chained plugin
-                            chained_result = await self.worker_pool.execute_plugin_batch(
+                        coroutines.append(
+                            self.worker_pool.execute_plugin_batch(
                                 [plugin],
                                 target,
                                 category,
-                                timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
+                                timeout=self.profile.get("timeout", 120) // 2,
                                 **kwargs
                             )
+                        )
+
+                    if coroutines:
+                        batch_results = await asyncio.gather(*coroutines, return_exceptions=True)
+                        for target, chained_result in zip(chain_targets, batch_results):
+                            if isinstance(chained_result, Exception):
+                                self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {chained_result}")
+                                continue
                             
                             # Add to chained results with unique key
                             for task_id, result in chained_result.items():
@@ -543,9 +552,6 @@ class DetectiveJoe:
                                     "source_artifact_type": artifact_type,
                                     "status": result.get("status", "unknown")
                                 })
-                        
-                        except Exception as e:
-                            self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {e}")
         
         self.logger.info(f"Completed artifact chaining: {len(chained_results)} additional tasks")
         return chained_results
