@@ -1,0 +1,4 @@
+## 2026-06-16 - Command Injection via AsyncWorkerPool
+**Vulnerability:** Unsanitized user inputs (targets, ports) from YAML profiles or API payloads were directly interpolated into shell command strings in plugin `build_command` methods, which were then passed directly to `asyncio.create_subprocess_shell()`.
+**Learning:** The async plugin architecture's use of `asyncio.create_subprocess_shell` inherently treats the entire generated command string as executable bash. Therefore, standard `subprocess.run` array notation protections do not apply, leaving any unsanitized user variable vulnerable to injection.
+**Prevention:** Always use `shlex.quote(str(variable))` to sanitize all user-controllable inputs within the plugin's `build_command` before concatenating them into the shell string. Ensure the outputs of `shlex.quote` are not wrapped in manual quotes.
