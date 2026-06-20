@@ -6,7 +6,6 @@ Export investigation results to industry-standard formats (CSV, XML).
 
 import csv
 import xml.etree.ElementTree as ET
-from xml.dom import minidom
 from pathlib import Path
 from typing import Dict, Any, List
 import logging
@@ -244,7 +243,8 @@ class ExportManager:
             
             # Pretty print XML
             try:
-                xml_string = minidom.parseString(ET.tostring(root)).toprettyxml(indent="  ")
+                ET.indent(root, space="  ")
+                xml_string = ET.tostring(root, encoding="unicode")
             except Exception as e:
                 self.logger.warning(f"Failed to pretty print XML, using basic format: {e}")
                 xml_string = ET.tostring(root, encoding='unicode')
