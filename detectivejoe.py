@@ -498,6 +498,9 @@ class DetectiveJoe:
         
         self.logger.info(f"Performing artifact chaining with depth {max_depth}")
         
+        chaining_tasks = []
+        task_metadata = []
+
         # Find plugins that can consume these artifacts
         for artifact_type, values in chainable.items():
             if not values:
@@ -521,32 +524,43 @@ class DetectiveJoe:
                     chain_targets = values[:5] if aggressiveness == "low" else values[:10]
                     
                     for target in chain_targets:
-                        try:
-                            # Execute chained plugin
-                            chained_result = await self.worker_pool.execute_plugin_batch(
-                                [plugin],
-                                target,
-                                category,
-                                timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
-                                **kwargs
-                            )
-                            
-                            # Add to chained results with unique key
-                            for task_id, result in chained_result.items():
-                                chained_key = f"chained_{plugin_name}_{target}_{len(chained_results)}"
-                                chained_results[chained_key] = result
-                                
-                                # Track chained task
-                                self.investigation_state["chained_tasks"].append({
-                                    "plugin": plugin_name,
-                                    "target": target,
-                                    "source_artifact_type": artifact_type,
-                                    "status": result.get("status", "unknown")
-                                })
+                        # Prepare the concurrent task
+                        coro = self.worker_pool.execute_plugin_batch(
+                            [plugin],
+                            target,
+                            category,
+                            timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
+                            **kwargs
+                        )
+                        chaining_tasks.append(coro)
+                        task_metadata.append({
+                            "plugin_name": plugin_name,
+                            "target": target,
+                            "artifact_type": artifact_type
+                        })
+
+        if chaining_tasks:
+            # Execute all chained tasks concurrently
+            gather_results = await asyncio.gather(*chaining_tasks, return_exceptions=True)
+
+            for idx, result_obj in enumerate(gather_results):
+                meta = task_metadata[idx]
+                if isinstance(result_obj, Exception):
+                    self.logger.warning(f"Chained task failed: {meta['plugin_name']} -> {meta['target']}: {result_obj}")
+                else:
+                    # Add to chained results with unique key
+                    for task_id, result in result_obj.items():
+                        chained_key = f"chained_{meta['plugin_name']}_{meta['target']}_{len(chained_results)}"
+                        chained_results[chained_key] = result
+
+                        # Track chained task
+                        self.investigation_state["chained_tasks"].append({
+                            "plugin": meta['plugin_name'],
+                            "target": meta['target'],
+                            "source_artifact_type": meta['artifact_type'],
+                            "status": result.get("status", "unknown")
+                        })
                         
-                        except Exception as e:
-                            self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {e}")
-        
         self.logger.info(f"Completed artifact chaining: {len(chained_results)} additional tasks")
         return chained_results
         """Generate summary statistics from plugin results."""
