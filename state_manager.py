@@ -12,7 +12,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 import logging
-import pickle
 
 
 class InvestigationState:
@@ -154,10 +153,6 @@ class StateManager:
             with open(json_path, 'w') as f:
                 json.dump(self.current_state.to_dict(), f, indent=2)
             
-            # Save binary state (complete with artifacts)
-            pickle_path = self.state_dir / f"{self.current_state.state_id}.pkl"
-            with open(pickle_path, 'wb') as f:
-                pickle.dump(self.current_state, f)
             
             self.logger.debug(f"Saved state {self.current_state.state_id}")
             return True
@@ -177,14 +172,6 @@ class StateManager:
             Loaded investigation state or None if not found
         """
         try:
-            # Try binary state first (complete)
-            pickle_path = self.state_dir / f"{state_id}.pkl"
-            if pickle_path.exists():
-                with open(pickle_path, 'rb') as f:
-                    state = pickle.load(f)
-                self.logger.info(f"Loaded complete state {state_id}")
-                return state
-            
             # Fallback to JSON state
             json_path = self.state_dir / f"{state_id}.json"
             if json_path.exists():
