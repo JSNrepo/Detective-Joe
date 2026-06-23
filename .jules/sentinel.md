@@ -1,0 +1,4 @@
+## 2026-06-23 - Replace Unsafe Pickle Deserialization
+**Vulnerability:** The `state_manager.py` file uses `pickle.load()` to deserialize complete investigation state from user-modifiable `.pkl` files on disk, creating a high-risk insecure deserialization vulnerability (CWE-502).
+**Learning:** `pickle` is inherently insecure because it can execute arbitrary Python code during deserialization. State files that store complex internal objects should be safely serialized using JSON, and if objects must be reconstructed, it should be done using explicit mapping (like the existing `from_dict` method) rather than executing arbitrary serialized byte code.
+**Prevention:** Always use `json` instead of `pickle` for serializing and deserializing application state or untrusted data. When objects need to be reconstructed, use a structured schema or manual population.
