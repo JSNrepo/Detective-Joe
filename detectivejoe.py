@@ -498,6 +498,11 @@ class DetectiveJoe:
         
         self.logger.info(f"Performing artifact chaining with depth {max_depth}")
         
+        # ⚡ Bolt Optimization: Use asyncio.gather to concurrently execute artifact chaining tasks.
+        # This replaces sequential awaits inside nested loops, drastically reducing total execution time.
+        tasks = []
+        task_metadata = []
+
         # Find plugins that can consume these artifacts
         for artifact_type, values in chainable.items():
             if not values:
@@ -521,31 +526,47 @@ class DetectiveJoe:
                     chain_targets = values[:5] if aggressiveness == "low" else values[:10]
                     
                     for target in chain_targets:
-                        try:
-                            # Execute chained plugin
-                            chained_result = await self.worker_pool.execute_plugin_batch(
+                        # Append the coroutine to the list instead of awaiting it sequentially
+                        tasks.append(
+                            self.worker_pool.execute_plugin_batch(
                                 [plugin],
                                 target,
                                 category,
                                 timeout=self.profile.get("timeout", 120) // 2,  # Reduced timeout for chained tasks
                                 **kwargs
                             )
-                            
-                            # Add to chained results with unique key
-                            for task_id, result in chained_result.items():
-                                chained_key = f"chained_{plugin_name}_{target}_{len(chained_results)}"
-                                chained_results[chained_key] = result
-                                
-                                # Track chained task
-                                self.investigation_state["chained_tasks"].append({
-                                    "plugin": plugin_name,
-                                    "target": target,
-                                    "source_artifact_type": artifact_type,
-                                    "status": result.get("status", "unknown")
-                                })
-                        
-                        except Exception as e:
-                            self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {e}")
+                        )
+                        task_metadata.append({
+                            "plugin_name": plugin_name,
+                            "target": target,
+                            "artifact_type": artifact_type
+                        })
+
+        if tasks:
+            # Execute all tasks concurrently and handle exceptions individually
+            results_list = await asyncio.gather(*tasks, return_exceptions=True)
+            for idx, result in enumerate(results_list):
+                metadata = task_metadata[idx]
+                plugin_name = metadata["plugin_name"]
+                target = metadata["target"]
+                artifact_type = metadata["artifact_type"]
+
+                if isinstance(result, Exception):
+                    self.logger.warning(f"Chained task failed: {plugin_name} -> {target}: {result}")
+                    continue
+
+                # Add to chained results with unique key
+                for task_id, res in result.items():
+                    chained_key = f"chained_{plugin_name}_{target}_{len(chained_results)}"
+                    chained_results[chained_key] = res
+
+                    # Track chained task
+                    self.investigation_state["chained_tasks"].append({
+                        "plugin": plugin_name,
+                        "target": target,
+                        "source_artifact_type": artifact_type,
+                        "status": res.get("status", "unknown")
+                    })
         
         self.logger.info(f"Completed artifact chaining: {len(chained_results)} additional tasks")
         return chained_results
