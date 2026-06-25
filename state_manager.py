@@ -78,7 +78,7 @@ class InvestigationState:
 class StateManager:
     """Manages investigation state persistence and recovery."""
     
-    def __init__(self, state_dir: Path):
+    def __init__(self, state_dir: Path, register_signal_handlers: bool = True):
         """
         Initialize state manager.
         
