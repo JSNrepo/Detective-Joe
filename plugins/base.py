@@ -4,6 +4,7 @@ Detective Joe v1.5 - Plugin Base Class
 Defines the base plugin interface that all reconnaissance plugins must implement.
 """
 
+import functools
 import asyncio
 import subprocess
 import time
@@ -81,6 +82,8 @@ class PluginBase(ABC):
         """
         pass
     
+    # Optimization: Cache availability check to reduce excessive disk I/O
+    @functools.lru_cache(maxsize=None)
     def is_available(self) -> bool:
         """
         Check if the plugin's required tools are available on the system.
