@@ -10,6 +10,7 @@ import time
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List
 import logging
+import functools
 
 
 class PluginBase(ABC):
@@ -81,6 +82,8 @@ class PluginBase(ABC):
         """
         pass
     
+    # Optimization: Cache the availability check to prevent excessive disk I/O from repeated shutil.which calls
+    @functools.lru_cache(maxsize=None)
     def is_available(self) -> bool:
         """
         Check if the plugin's required tools are available on the system.
