@@ -58,7 +58,7 @@ Detective Joe (**DJ**) v1.5 is a **next-generation automated reconnaissance fram
 - **Demo Plugin**: Testing mode without external dependencies
 
 ### AI-Powered Intelligence Analysis (New!)
-- **Google Gemini Flash Integration**: AI-powered reconnaissance analysis (default model alias: `gemini-flash-latest`)
+- **Google Gemini Flash Integration**: AI-powered reconnaissance analysis (default model alias: `gemini-1.5-flash`)
 - **Intelligent Risk Assessment**: Context-aware risk scoring and classification
 - **Advanced Vulnerability Detection**: AI-driven identification of security issues with CVE correlation
 - **Natural Language Insights**: Human-readable security summaries and recommendations
@@ -198,7 +198,7 @@ cat > .env << 'EOF'
 GEMINI_API_KEY=your-api-key-here
 # Optional:
 # GOOGLE_API_KEY=your-api-key-here
-# GEMINI_MODEL=gemini-flash-latest
+# GEMINI_MODEL=gemini-1.5-flash
 EOF
 
 # Or add to your shell config for persistence
@@ -437,7 +437,7 @@ SUMMARY:
 ### Gemini Flash Integration
 
 Detective Joe now includes intelligent analysis powered by Google's Gemini Flash AI.
-Default model alias: `gemini-flash-latest`.
+Default model alias: `gemini-1.5-flash`.
 
 **Quick Setup:**
 ```bash
@@ -446,12 +446,12 @@ export GEMINI_API_KEY="your-api-key-here"
 # Optional equivalent env var:
 export GOOGLE_API_KEY="your-api-key-here"
 # Optional model alias override:
-export GEMINI_MODEL="gemini-flash-latest"
+export GEMINI_MODEL="gemini-1.5-flash"
 
 # Or use a .env file (auto-loaded):
 cat > .env << 'EOF'
 GEMINI_API_KEY=your-api-key-here
-GEMINI_MODEL=gemini-flash-latest
+GEMINI_MODEL=gemini-1.5-flash
 EOF
 
 # Run any scan - AI analysis is automatic!

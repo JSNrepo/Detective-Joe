@@ -286,9 +286,9 @@ GOOGLE_API_KEY=test-google-key
 
     def test_gemini_model_name_can_be_set_via_env(self):
         """GeminiService should honor GEMINI_MODEL environment override."""
-        os.environ["GEMINI_MODEL"] = "gemini-flash-latest"
+        os.environ["GEMINI_MODEL"] = "gemini-1.5-flash"
         service = GeminiService(api_key="dummy-key")
-        self.assertEqual(service.model_name, "gemini-flash-latest")
+        self.assertEqual(service.model_name, "gemini-1.5-flash")
 
 
 class TestCliExitCodes(unittest.IsolatedAsyncioTestCase):
