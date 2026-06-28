@@ -27,7 +27,7 @@ class GeminiService:
         """
         self.logger = logging.getLogger("dj.gemini")
         self.api_key = api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
-        self.model_name = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
+        self.model_name = os.environ.get("GEMINI_MODEL", "gemini-1.5-flash")
         self.client = None
         self.enabled = False
         
