@@ -198,12 +198,13 @@ class AsyncWorkerPool:
         
         while time.time() - start_time < wait_timeout:
             # Check if all tasks are complete
-            pending_tasks = [
-                task_id for task_id in task_ids
-                if task_id in self.tasks and self.tasks[task_id].status in [TaskStatus.PENDING, TaskStatus.RUNNING]
-            ]
+            # Optimization: Use any() with generator expression to prevent O(N) memory allocations per polling cycle
+            has_pending = any(
+                task_id in self.tasks and self.tasks[task_id].status in [TaskStatus.PENDING, TaskStatus.RUNNING]
+                for task_id in task_ids
+            )
             
-            if not pending_tasks:
+            if not has_pending:
                 break
             
             # Wait a bit before checking again
@@ -320,7 +321,8 @@ class AsyncWorkerPool:
         return {
             "max_workers": self.max_workers,
             "running": self.running,
-            "active_tasks": len([t for t in self.tasks.values() if t.status == TaskStatus.RUNNING]),
+            # Optimization: Use sum(1 for ...) generator expression to prevent O(N) memory allocations
+            "active_tasks": sum(1 for t in self.tasks.values() if t.status == TaskStatus.RUNNING),
             "queue_size": self.task_queue.qsize(),
             **self.stats
         }
