@@ -197,15 +197,14 @@ class AsyncWorkerPool:
         start_time = time.time()
         
         while time.time() - start_time < wait_timeout:
-            # Check if all tasks are complete
-            pending_tasks = [
-                task_id for task_id in task_ids
-                if task_id in self.tasks and self.tasks[task_id].status in [TaskStatus.PENDING, TaskStatus.RUNNING]
-            ]
+            # Check if any task is incomplete
+            has_pending = any(
+                task_id in self.tasks and self.tasks[task_id].status in [TaskStatus.PENDING, TaskStatus.RUNNING]
+                for task_id in task_ids
+            )
             
-            if not pending_tasks:
+            if not has_pending:
                 break
-            
             # Wait a bit before checking again
             await asyncio.sleep(0.1)
         
