@@ -191,7 +191,7 @@ class TorManager:
         """
         try:
             # Try to start TOR service (may require root privileges)
-            subprocess.run(['systemctl', 'start', 'tor'], 
+            subprocess.run(["/usr/bin/systemctl", "start", "tor"],
                          check=True, capture_output=True)
             
             # Wait a bit for TOR to start
@@ -221,15 +221,14 @@ class TorManager:
         try:
             # Send NEWNYM signal to TOR control port
             subprocess.run([
-                'echo', 'AUTHENTICATE ""\\nSIGNAL NEWNYM\\nQUIT'
+                "/usr/bin/echo", "-e", "AUTHENTICATE \"\"\nSIGNAL NEWNYM\nQUIT"
             ], stdout=subprocess.PIPE)
             
             # Alternative method using telnet/nc
             try:
                 subprocess.run([
-                    'sh', '-c', 
-                    f'echo -e "AUTHENTICATE \\"\\"\nSIGNAL NEWNYM\nQUIT" | nc 127.0.0.1 {self.control_port}'
-                ], check=True, capture_output=True, timeout=5)
+                    "nc", "127.0.0.1", str(self.control_port)
+                ], input=b"AUTHENTICATE \"\"\nSIGNAL NEWNYM\nQUIT\n", check=True, capture_output=True, timeout=5)
                 
                 self.logger.info("TOR circuit renewed")
                 time.sleep(2)  # Wait for new circuit
