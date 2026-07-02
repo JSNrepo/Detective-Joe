@@ -4,6 +4,7 @@ Detective Joe v1.5 - Intelligence Engine
 Artifact management, deduplication, CVE matching, and enrichment system.
 """
 
+import heapq
 import hashlib
 import json
 import re
@@ -472,14 +473,15 @@ class IntelligenceEngine:
         summary["by_tags"] = tag_counts
         
         # Recent artifacts (last 10)
-        sorted_artifacts = sorted(
+        # ⚡ Bolt: Using heapq.nlargest instead of full sort to improve performance from O(N log N) to O(N log K)
+        recent_artifacts = heapq.nlargest(
+            10,
             self.artifact_db.artifacts.values(),
-            key=lambda a: a.timestamp,
-            reverse=True
+            key=lambda a: a.timestamp
         )
         summary["recent_artifacts"] = [
             {"id": a.id, "type": a.type, "value": a.value, "source": a.source_plugin}
-            for a in sorted_artifacts[:10]
+            for a in recent_artifacts
         ]
         
         return summary
