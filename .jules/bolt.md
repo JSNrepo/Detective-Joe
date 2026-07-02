@@ -1,0 +1,3 @@
+## 2026-07-02 - Optimize AsyncWorkerPool Task Polling
+**Learning:** In highly concurrent async loops (like waiting for tasks to complete), using list comprehensions combined with an early exit check (e.g., `[x for x in list if condition]` followed by `if not x:`) forces O(N) memory allocation and processing on every single polling cycle, even if the condition is met early. This is particularly inefficient for continuous polling loops.
+**Action:** Use Python's `any()` generator expression (`any(condition for x in list)`) to prevent O(N) memory allocations and to short-circuit the evaluation the moment a condition is met.
