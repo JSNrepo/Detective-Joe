@@ -227,9 +227,8 @@ class TorManager:
             # Alternative method using telnet/nc
             try:
                 subprocess.run([
-                    'sh', '-c', 
-                    f'echo -e "AUTHENTICATE \\"\\"\nSIGNAL NEWNYM\nQUIT" | nc 127.0.0.1 {self.control_port}'
-                ], check=True, capture_output=True, timeout=5)
+                    "nc", "127.0.0.1", str(self.control_port)
+                ], input=b"AUTHENTICATE \"\"\nSIGNAL NEWNYM\nQUIT\n", check=True, capture_output=True, timeout=5)
                 
                 self.logger.info("TOR circuit renewed")
                 time.sleep(2)  # Wait for new circuit
