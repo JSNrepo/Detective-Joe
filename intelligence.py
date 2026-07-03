@@ -10,6 +10,7 @@ import re
 import logging
 from datetime import datetime
 from typing import Dict, Any, List, Set, Optional, Tuple
+import heapq
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
@@ -472,14 +473,15 @@ class IntelligenceEngine:
         summary["by_tags"] = tag_counts
         
         # Recent artifacts (last 10)
-        sorted_artifacts = sorted(
+        # Optimized using heapq.nlargest for O(N log K) performance instead of O(N log N)
+        recent_artifacts = heapq.nlargest(
+            10,
             self.artifact_db.artifacts.values(),
-            key=lambda a: a.timestamp,
-            reverse=True
+            key=lambda a: a.timestamp
         )
         summary["recent_artifacts"] = [
             {"id": a.id, "type": a.type, "value": a.value, "source": a.source_plugin}
-            for a in sorted_artifacts[:10]
+            for a in recent_artifacts
         ]
         
         return summary
